@@ -1,0 +1,24 @@
+{
+  "name": "Clippy",
+  "version": "0.0.0",
+  "homepage": "https://github.com/harumburum/clippy",
+  "authors": [
+    "Vladimir Litvinchik <vlitvinchik@marinedepot.com>"
+  ],
+  "description": "Screenshot storage application",
+  "keywords": [
+    "Screenshot",
+    "Storage"
+  ],
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "jquery": "~2.1.1",
+    "toastr": "~2.0.3",
+    "angular": "~1.2.16",
+    "angular-resource": "~1.2.16",
+    "angular-route": "~1.2.16",
+    "bootstrap": "~3.1.1",
+    "fontawesome": "~4.1.0"
+  }
+}
