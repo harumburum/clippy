@@ -45,8 +45,9 @@ Message.findOne().exec(function(err, messageDoc){  });
 
 //Setup application routes
 var router  = express.Router();
-router.get('/partials/:partialsPath', function(req, res){
-    res.render('partials/' + req.params.partialsPath);
+router.get('/partials/*', function(req, res){
+    console.log(req.params[0] + '\n\n\n');
+    res.render(__dirname + '/public/app/' + req.params[0]);
 });
 router.get('*', function(req, res){
     res.render('index', { });

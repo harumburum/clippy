@@ -1,12 +1,8 @@
 angular.module('app', ['ngResource', 'ngRoute']);
 
 angular.module('app').config(function($routeProvider, $locationProvider){
-    $locationProvider.html5Mode(true);
+    //$locationProvider.html5Mode(true);
     $routeProvider
-        .when('/', {templateUrl: '/partials/main', controller: 'mainCtrl'});
-
-});
-
-angular.module('app').controller('mainCtrl', function($scope){
-
+        .when('/', {templateUrl: '/partials/main/main', controller: 'mainCtrl'})
+        .when('/myimages', {templateUrl: '/partials/myImages/myImages', controller: 'myImagesCtrl'});
 });
