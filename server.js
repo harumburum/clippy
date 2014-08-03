@@ -11,7 +11,8 @@ app.set('view engine', 'jade')
 
 //Parse documents that send to the server
 var bodyParser = require('body-parser');
-app.use(bodyParser());
+app.use(bodyParser.urlencoded({extended: true}));
+
 
 //Setup logger
 var morgan = require('morgan');
@@ -45,14 +46,33 @@ Message.findOne().exec(function(err, messageDoc){  });
 
 //Setup application routes
 var router  = express.Router();
+
+var fs = require('fs');
+router.post('/api/img', function(req, res, next) {
+    var data = '';
+    req.on('data', function(chunk) {
+        data += chunk;
+    }).on('end', function(){
+        data = data.replace(/^data:image\/png;base64,/, "");
+        fs.writeFile("out.png", data, 'base64', function(err) {
+            console.log(err);
+        });
+        res.send(200);
+    });
+});
+
+
+
 router.get('/partials/*', function(req, res){
-    console.log(req.params[0] + '\n\n\n');
     res.render(__dirname + '/public/app/' + req.params[0]);
 });
 router.get('*', function(req, res){
     res.render('index', { });
 });
 app.use('/', router);
+
+
+
 
 
 //Run node
