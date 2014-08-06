@@ -48,20 +48,25 @@ Message.findOne().exec(function(err, messageDoc){  });
 var router  = express.Router();
 
 var fs = require('fs');
+var path = require('path');
+var unique = require('./server/utilities/unique');
+var storage = require('./server/config/storage');
+var uniqueImageIdLenght = 5;
 router.post('/api/img', function(req, res, next) {
     var data = '';
     req.on('data', function(chunk) {
         data += chunk;
     }).on('end', function(){
         data = data.replace(/^data:image\/png;base64,/, "");
-        fs.writeFile("out.png", data, 'base64', function(err) {
+        var imgCode = unique.createString(uniqueImageIdLenght);
+        var fileName = path.join(storage.storagePath, imgCode + '.png');
+        fs.writeFile(fileName, data, 'base64', function(err) {
             console.log(err);
         });
-        res.send(200);
+
+        res.send({ id : imgCode });
     });
 });
-
-
 
 router.get('/partials/*', function(req, res){
     res.render(__dirname + '/public/app/' + req.params[0]);
@@ -70,9 +75,6 @@ router.get('*', function(req, res){
     res.render('index', { });
 });
 app.use('/', router);
-
-
-
 
 
 //Run node
