@@ -1,3 +1,3 @@
 module.exports = {
-    storagePath : "c:\\ImgStorage\\"
+    storagePath : "d:\\vlitvinchik\\ImgStorage\\"
 }

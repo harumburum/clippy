@@ -1,3 +1,70 @@
 .btn-nav {
   border: 1px solid #00b3fe !important;
 }
+
+/*#region Angular ng-include, ng-view, ng-repeat shuffle animations*/
+
+.shuffle-animation.ng-enter,
+.shuffle-animation.ng-leave {
+    position: relative;
+}
+
+.shuffle-animation.ng-enter {
+    -moz-transition: ease-out all 0.3s 0.4s;
+    -o-transition: ease-out all 0.3s 0.4s;
+    -webkit-transition: ease-out all 0.3s 0.4s;
+    transition: ease-out all 0.3s 0.4s;
+    left: 2em;
+    opacity: 0;
+}
+
+.shuffle-animation.ng-enter.ng-enter-active {
+    left: 0;
+    opacity: 1;
+}
+
+.shuffle-animation.ng-leave {
+    -moz-transition: 0.3s ease-out all;
+    -o-transition: 0.3s ease-out all;
+    -webkit-transition: 0.3s ease-out all;
+    transition: 0.3s ease-out all;
+    left: 0;
+    opacity: 1;
+}
+
+.shuffle-animation.ng-leave.ng-leave-active {
+    left: 2em;
+    opacity: 0;
+}
+/*#endregion*/
+
+
+#social:hover {
+    -webkit-transform:scale(1.1);
+    -moz-transform:scale(1.1);
+    -o-transform:scale(1.1);
+}
+#social {
+    -webkit-transform:scale(0.8);
+    /* Browser Variations: */
+    -moz-transform:scale(0.8);
+    -o-transform:scale(0.8);
+    -webkit-transition-duration: 0.5s;
+    -moz-transition-duration: 0.5s;
+    -o-transition-duration: 0.5s;
+}
+/*
+    Only Needed in Multi-Coloured Variation
+                                               */
+.social-fb:hover {
+    color: #3B5998;
+}
+.social-tw:hover {
+    color: #4099FF;
+}
+.social-gp:hover {
+    color: #d34836;
+}
+.social-em:hover {
+    color: #f39c12;
+}

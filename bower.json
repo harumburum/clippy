@@ -1,5 +1,5 @@
 {
-  "name": "Clippy",
+  "name": "Img2Net",
   "version": "0.0.0",
   "homepage": "https://github.com/harumburum/clippy",
   "authors": [
@@ -19,6 +19,7 @@
     "angular-resource": "~1.2.16",
     "angular-route": "~1.2.16",
     "bootstrap": "~3.1.1",
-    "fontawesome": "~4.1.0"
+    "fontawesome": "~4.1.0",
+    "angular-animate": "~1.2.21"
   }
 }

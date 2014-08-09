@@ -31,7 +31,9 @@ app.use(stylus.middleware(
 
 
 //Setup db
-var mongoose = require('mongoose');
+var mongoose = require('mongoose'),
+    imgModel = require('./server/models/Img');
+
 mongoose.connect('mongodb://localhost/img2cloud');
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'Database connection error...'));
@@ -39,10 +41,12 @@ db.once('open', function callback(){
     console.log("Database connection opened...")
 });
 
+
+
+
 var messageSchema = mongoose.Schema({message: String});
 var Message = mongoose.model('Message', messageSchema);
 Message.findOne().exec(function(err, messageDoc){  });
-
 
 //Setup application routes
 var router  = express.Router();
@@ -64,13 +68,46 @@ router.post('/api/img', function(req, res, next) {
             console.log(err);
         });
 
-        res.send({ id : imgCode });
+        imgModel.createImg(imgCode);
+
+        res.send(imgCode);
     });
 });
+
+app.get('/api/img', imgModel.getImgs);
 
 router.get('/partials/*', function(req, res){
     res.render(__dirname + '/public/app/' + req.params[0]);
 });
+
+router.get('/img/*', function(req, res){
+    var imgCode = (req.params[0] || '').replace('.png', '');
+    var user_id = res.cookie['user_id'];
+    console.log('code: ' + imgCode);
+    imgModel.getImgByCode(imgCode, function(err, img){
+        if(img.user_id == ""){
+            var guid = user_id || unique.createGuid();
+            img.user_id = guid;
+            img.save();
+            res.cookie('user_id', guid);
+        }
+        var fileName = path.join(storage.storagePath,  imgCode + '.png');
+        res.sendfile(fileName);
+    });
+});
+
+router.get('/d/*', function(req, res){
+    //TODO: check file existence
+    //TODO: check safe path, length
+    //TODO: show 404
+
+    var imgCode = (req.params[0] || '').replace('.png', '');
+    var fileName = path.join(storage.storagePath,  imgCode + '.png');
+    res.set('Content-disposition', 'attachment; filename=' + imgCode + '.png');
+    res.set('Content-type', 'application/octet-stream');
+    res.sendfile(fileName);
+});
+
 router.get('*', function(req, res){
     res.render('index', { });
 });
