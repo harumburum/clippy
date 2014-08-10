@@ -1,10 +1,23 @@
-div(class="container mtb")
+div(id="blue", style="padding-bottom: 15px;margin-bottom: 20px;")
+   .container
+       .row
+           //h3 My Images
+           button(role="button", class="btn btn-success btn-lg" style="margin-left:15px")
+                span(class="glyphicon glyphicon-upload")
+                | &nbsp Upload Image
+           button(role="button", class="btn btn-warning btn-lg disabled" ng-class="canRemove ? '' : 'disabled'" style="margin-left:15px")
+                span(class="glyphicon glyphicon-remove-circle")
+                | &nbsp Remove
+div(class="container mtb" style="margin-top: 20px;")
     div(class="row")
         div(class="col-sm-5 col-md-3" ng-repeat="img in imgs")
-            div(class="thumbnail")
-                a(href="#/img/{{img.code}}")
-                    img(ng-src="/img/{{img.code}}.png", style="pointer:finget;height: 150px; width: 100%; display: block;")
+            div(class="thumbnail" ng-class="img.selected ? 'thumbnail-selected' : ''")
+                div(style="width:253px;height:200px;margin:0 auto;position:relative")
+                    a(href="#/img/{{img.code}}" style="display: table-cell; width: 253px;height:200px;vertical-align:middle")
+                        img(ng-src="/img/thumb/{{img.code}}.png")
                 div(class="caption")
-                    span {{img.code}}.png - 130kb
+                    span {{img.code}}.png - {{img.size | bytes}}
                     p Some text
-
+                        button(class="btn pull-right" ng-class="img.selected ? 'btn-info' : 'btn-default'" ng-click="toggleSelect(img)")
+                            span(class="glyphicon" ng-class="img.selected ? 'glyphicon-check' : 'glyphicon-unchecked'")
+                            | &nbsp {{img.selected ? 'Selected' : 'Select'}}

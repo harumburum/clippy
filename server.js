@@ -34,7 +34,7 @@ app.use(stylus.middleware(
 var mongoose = require('mongoose'),
     imgModel = require('./server/models/Img');
 
-mongoose.connect('mongodb://localhost/img2cloud');
+mongoose.connect('mongodb://localhost/img2net');
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'Database connection error...'));
 db.once('open', function callback(){
@@ -55,8 +55,9 @@ var fs = require('fs');
 var path = require('path');
 var unique = require('./server/utilities/unique');
 var storage = require('./server/config/storage');
+var im = require('imagemagick');
 var uniqueImageIdLenght = 5;
-router.post('/api/img', function(req, res, next) {
+router.post('/api/imgs', function(req, res, next) {
     var data = '';
     req.on('data', function(chunk) {
         data += chunk;
@@ -67,17 +68,72 @@ router.post('/api/img', function(req, res, next) {
         fs.writeFile(fileName, data, 'base64', function(err) {
             console.log(err);
         });
+        //TODO: create thumbnail
+        var thumbFileName = path.join(storage.thumbStoragePath, imgCode + '.png');
 
-        imgModel.createImg(imgCode);
 
+
+        console.log(fileName);
+        console.log(thumbFileName);
+
+
+        //max height 150px
+        //max width 253px
+        var buffer = new Buffer(data, 'base64');
+        var w = buffer.readUInt32BE(16);
+        var h = buffer.readUInt32BE(20);
+        console.log(w)
+        console.log(h)
+
+        //TODO: get width of thumb
+        var maxWidth = 253;
+        var maxHeight = 150;
+        var thumbWidth = 0;
+        if(w > h){ //maz width
+            thumbWidth = maxWidth;
+        } else {
+            thumbWidth = maxHeight / (h / w);
+        }
+
+        console.log(thumbWidth);
+
+            im.resize({
+                srcPath: fileName,
+                dstPath: thumbFileName,
+                width:   thumbWidth
+            }, function(err, stdout, stderr){
+                if (err) throw err;
+                console.log('resized kittens.jpg to fit within 256x256px');
+            });
+        /*});*/
+
+
+        //TODO: save to db
+        imgModel.createImg(imgCode, data.length);
         res.send(imgCode);
     });
 });
 
-app.get('/api/img', imgModel.getImgs);
+app.get('/api/imgs', imgModel.getImgs);
 
 router.get('/partials/*', function(req, res){
     res.render(__dirname + '/public/app/' + req.params[0]);
+});
+
+router.get('/img/thumb/*', function(req, res){
+    var imgCode = (req.params[0] || '').replace('.png', '');
+    var user_id = res.cookie['user_id'];
+    console.log('code: ' + imgCode);
+    imgModel.getImgByCode(imgCode, function(err, img){
+        if(img.user_id == ""){
+            var guid = user_id || unique.createGuid();
+            img.user_id = guid;
+            img.save();
+            res.cookie('user_id', guid);
+        }
+        var fileName = path.join(storage.thumbStoragePath,  imgCode + '.png');
+        res.sendfile(fileName);
+    });
 });
 
 router.get('/img/*', function(req, res){
@@ -95,6 +151,8 @@ router.get('/img/*', function(req, res){
         res.sendfile(fileName);
     });
 });
+
+
 
 router.get('/d/*', function(req, res){
     //TODO: check file existence
