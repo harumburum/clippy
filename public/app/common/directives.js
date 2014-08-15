@@ -8,9 +8,11 @@
             restrict: 'A',
             link: function(scope, element, attrs){
                 element.bind('change', function(){
+                    debugger;
                     $parse(attrs.fileInput)
                         .assign(scope, element[0].files);
                     scope.$apply();
+                    scope.$emit('startUpload');
                 });
             }
         }

@@ -1,9 +1,12 @@
 //Setup app
 var express = require('express');
 var app     = express();
+var multer  = require('multer');
+app.use(multer({ dest: './uploads/'}));
 
 //Setup static files location
 app.use(express.static(__dirname + '/public'));
+
 
 //Setup view engine
 app.set('views', __dirname + '/server/views');
@@ -57,7 +60,7 @@ var unique = require('./server/utilities/unique');
 var storage = require('./server/config/storage');
 var im = require('imagemagick');
 var uniqueImageIdLenght = 5;
-router.post('/api/imgs', function(req, res, next) {
+router.post('/api/images', function(req, res, next) {
     var data = '';
     req.on('data', function(chunk) {
         data += chunk;
@@ -71,11 +74,8 @@ router.post('/api/imgs', function(req, res, next) {
         //TODO: create thumbnail
         var thumbFileName = path.join(storage.thumbStoragePath, imgCode + '.png');
 
-
-
         console.log(fileName);
         console.log(thumbFileName);
-
 
         //max height 150px
         //max width 253px
@@ -113,6 +113,15 @@ router.post('/api/imgs', function(req, res, next) {
         res.send(imgCode);
     });
 });
+
+router.post('/api/up', function(req, res, next) {
+    console.log('req: %j', req);
+    console.log('form:' + req.form);
+    console.log('body: %j', req.body);
+    console.log('files:' + req.files);
+    res.send(200);
+});
+
 
 app.get('/api/imgs', imgModel.getImgs);
 
