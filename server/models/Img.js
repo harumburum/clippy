@@ -9,8 +9,12 @@ var imgSchema = mongoose.Schema({
 
 var Img = mongoose.model('Img', imgSchema);
 
+var sort = {
+    asc : 1,
+    desc: 1
+}
 exports.getImgs = function (req, res) {
-    Img.find({}).exec(function (err, collection) {
+    Img.find({}, ['code', 'date', 'size'], { sort : {date:-1}}).exec(function (err, collection) {
         res.send(collection);
     });
 }
@@ -20,17 +24,17 @@ exports.getImgByCode = function (code, callback) {
 }
 
 
-exports.createImg = function(code, size){
+exports.createImg = function(code, size, callback){
     var imgData = {};
     imgData.code = code;
     imgData.date = new Date();
     imgData.user_id = '';
     imgData.size = size;
-    Img.create(imgData, function(err, img){
+    return Img.create(imgData, function(err, img){
         if(err){
-            return false;
+            callback(false);
         }
-        return img;
+        callback(img);
     });
 }
 

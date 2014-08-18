@@ -2,8 +2,8 @@
     'use strict';
 
     var controllerId = 'imgListCtrl';
-    angular.module('app').controller(controllerId, ['$scope', '$timeout', 'config', 'mvCachedImgs', imgListCtrl]);
-    function imgListCtrl($scope, $timeout, config, mvCachedImgs) {
+    angular.module('app').controller(controllerId, ['$scope', '$timeout', '$http', 'config', 'mvCachedImgs', imgListCtrl]);
+    function imgListCtrl($scope, $timeout, $http, config, mvCachedImgs) {
         var vm = $scope;
         vm.files = [];
         vm.imgs = mvCachedImgs.query();
@@ -25,18 +25,30 @@
             }
 
             //TODO: validate file size
-            var fd = new FormData()
+            var filesToUpload = [];
             for(var i = 0; i < vm.files.length; i ++){
                 var file = vm.files[i];
                 if(file.size && file.size > config.maxUploadFileSize){
                     alert("Cant upload image" + file.name + ". Max file size is 20MB.")
                 } else {
-                    fd.append('file', file);
+                    filesToUpload.push(file);
                 }
             }
 
             //TODO: upload and show progress
+            var fd = new FormData();
+            //Take the first selected file
+            fd.append("file", filesToUpload[0]);
 
+            $http.post('/u', fd, {
+                withCredentials: true,
+                headers: {'Content-Type': undefined },
+                transformRequest: angular.identity
+            }).success(function(img){
+                vm.imgs.unshift(img);
+            }).error( function(){
+
+            } );
         }
 
         function removeSelected(){

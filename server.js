@@ -114,6 +114,87 @@ router.post('/api/imgs', function(req, res, next) {
     });
 });
 
+var multiparty = require('multiparty');
+var http = require('http');
+var url = require('url');
+router.post('/u', function(req, res, next) {
+    var form = new multiparty.Form();
+    form.parse(req, function(err, fields, files) {
+        //expecting just one file
+        var file = files.file[0];
+        var ext = file.originalFilename.split('.').pop();
+
+        var imgCode = unique.createString(uniqueImageIdLenght);
+        var fn = (imgCode + '.' + ext);
+        var fileName = path.join(storage.storagePath, fn);
+
+        fs.createReadStream(file.path).pipe(fs.createWriteStream(fileName));
+
+        var data = fs.readFileSync(file.path);
+
+        var request_url = url.parse("http://localhost:54363/images?width=250");
+
+        var options = {
+            method: "POST",
+            protocol: request_url.protocol,
+            port: request_url.port,
+            hostname: request_url.hostname,
+            path: request_url.path,
+            headers: {
+                Accepts: 'application/json'
+            }
+        };
+
+        if (data) {
+            options.headers['Content-Length'] = data.length;
+        } else {
+            options.headers['Content-Length'] = 0;
+        }
+
+        var response_buffer = null;
+        var request = http.request(options);
+
+        request.on('response', function(response) {
+            response.on('data', function(chunk) {
+                if (response_buffer) {
+                    if (typeof (Buffer.concat) === 'function') {
+                        response_buffer = Buffer.concat([response_buffer, chunk]);
+                    } else {
+                        var holder = new Buffer(response_buffer.length + chunk.length);
+                        response_buffer.copy(holder);
+                        chunk.copy(holder, response_buffer.length);
+                        response_buffer = holder;
+                    }
+                } else {
+                    response_buffer = chunk;
+                }
+            });
+
+            response.on('end', function() {
+                /*var json = JSON.parse(response_buffer.toString());
+                if (typeof callback === 'function') {
+                    callback.call(null, json);
+                }*/
+                var thumbFileName = path.join(storage.thumbStoragePath, imgCode + '.png');
+                fs.writeFile(thumbFileName, response_buffer, function(err) {
+                    console.log(err);
+                });
+                imgModel.createImg(imgCode, file.size, function(img){
+                    res.send(img);
+                });
+            });
+        });
+
+        if (data) {
+            request.end(data);
+        } else {
+            request.end();
+        }
+
+
+    });
+});
+
 app.get('/api/imgs', imgModel.getImgs);
 
 router.get('/partials/*', function(req, res){
