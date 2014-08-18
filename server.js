@@ -1,9 +1,12 @@
 //Setup app
 var express = require('express');
 var app     = express();
+var multer  = require('multer');
+app.use(multer(/*{ dest: './uploads/'}*/));
 
 //Setup static files location
 app.use(express.static(__dirname + '/public'));
+
 
 //Setup view engine
 app.set('views', __dirname + '/server/views');
@@ -32,7 +35,7 @@ app.use(stylus.middleware(
 
 //Setup db
 var mongoose = require('mongoose'),
-    imgModel = require('./server/models/Img');
+    imgModel = require('./server/models/Image');
 
 mongoose.connect('mongodb://localhost/img2net');
 var db = mongoose.connection;
@@ -41,15 +44,14 @@ db.once('open', function callback(){
     console.log("Database connection opened...")
 });
 
-
-
-
-var messageSchema = mongoose.Schema({message: String});
-var Message = mongoose.model('Message', messageSchema);
-Message.findOne().exec(function(err, messageDoc){  });
-
 //Setup application routes
 var router  = express.Router();
+
+var images = require('./server/controllers/images');
+router.get('/api/images', images.getImages);
+router.delete('/api/images', images.deleteImage);
+
+
 
 var fs = require('fs');
 var path = require('path');
@@ -57,7 +59,7 @@ var unique = require('./server/utilities/unique');
 var storage = require('./server/config/storage');
 var im = require('imagemagick');
 var uniqueImageIdLenght = 5;
-router.post('/api/imgs', function(req, res, next) {
+router.post('/api/images', function(req, res, next) {
     var data = '';
     req.on('data', function(chunk) {
         data += chunk;
@@ -71,11 +73,8 @@ router.post('/api/imgs', function(req, res, next) {
         //TODO: create thumbnail
         var thumbFileName = path.join(storage.thumbStoragePath, imgCode + '.png');
 
-
-
         console.log(fileName);
         console.log(thumbFileName);
-
 
         //max height 150px
         //max width 253px
@@ -114,16 +113,13 @@ router.post('/api/imgs', function(req, res, next) {
     });
 });
 
-var multiparty = require('multiparty');
+//var multiparty = require('multiparty');
 var http = require('http');
 var url = require('url');
-router.post('/u', function(req, res, next) {
-    var form = new multiparty.Form();
-    form.parse(req, function(err, fields, files) {
-        //expecting just one file
-        var file = files.file[0];
-        var ext = file.originalFilename.split('.').pop();
-
+router.post('/upload', function(req, res, next) {
+    if(req.files.file){
+        var file = req.files.file;
+        var ext = file.extension;
         var imgCode = unique.createString(uniqueImageIdLenght);
         var fn = (imgCode + '.' + ext);
         var fileName = path.join(storage.storagePath, fn);
@@ -132,7 +128,7 @@ router.post('/u', function(req, res, next) {
 
         var data = fs.readFileSync(file.path);
 
-        var request_url = url.parse("http://localhost:54363/images?width=250");
+        var request_url = url.parse("http://kyliavlob.com/api/images?width=250");
 
         var options = {
             method: "POST",
@@ -171,15 +167,14 @@ router.post('/u', function(req, res, next) {
             });
 
             response.on('end', function() {
-                /*var json = JSON.parse(response_buffer.toString());
                 if (typeof callback === 'function') {
                     callback.call(null, json);
-                }*/
+                }
                 var thumbFileName = path.join(storage.thumbStoragePath, imgCode + '.png');
                 fs.writeFile(thumbFileName, response_buffer, function(err) {
                     console.log(err);
                 });
-                imgModel.createImg(imgCode, file.size, function(img){
+                imgModel.createImage(imgCode, file.size, function(img){
                     res.send(img);
                 });
             });
@@ -190,18 +185,14 @@ router.post('/u', function(req, res, next) {
         } else {
             request.end();
         }
-
-
-    });
+    }
 });
-
-app.get('/api/imgs', imgModel.getImgs);
 
 router.get('/partials/*', function(req, res){
     res.render(__dirname + '/public/app/' + req.params[0]);
 });
 
-router.get('/img/thumb/*', function(req, res){
+router.get('/image/thumb/*', function(req, res){
     var imgCode = (req.params[0] || '').replace('.png', '');
     var user_id = res.cookie['user_id'];
     console.log('code: ' + imgCode);
@@ -217,7 +208,7 @@ router.get('/img/thumb/*', function(req, res){
     });
 });
 
-router.get('/img/*', function(req, res){
+router.get('/image/*', function(req, res){
     var imgCode = (req.params[0] || '').replace('.png', '');
     var user_id = res.cookie['user_id'];
     console.log('code: ' + imgCode);
@@ -232,8 +223,6 @@ router.get('/img/*', function(req, res){
         res.sendfile(fileName);
     });
 });
-
-
 
 router.get('/d/*', function(req, res){
     //TODO: check file existence

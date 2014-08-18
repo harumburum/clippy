@@ -1,0 +1,35 @@
+div(id="blue", style="padding-bottom: 15px;margin-bottom: 20px;")
+   .container
+       .row
+           //h3 My Images
+<<<<<<< HEAD
+           button(role="button", class="btn btn-success btn-lg" style="margin-left:15px" ng-click="openFileDialog()")
+                span(class="glyphicon glyphicon-upload")
+                | &nbsp Upload Image
+           input(type="file", id="file-upload", file-input="files")
+           button(role="button", class="btn btn-warning btn-lg"  style="margin-left:15px" ng-click="startUpload()")
+               span(class="glyphicon glyphicon-save")
+               | &nbsp Start Upload
+=======
+           button(role="button", class="btn btn-success btn-lg" ng-class="isUploading ? 'disabled' : ''" style="margin-left:15px" ng-click="openFileDialog()" ng-disabled="isUploading")
+                span(class="glyphicon glyphicon-upload" ng-hide="isUploading")
+                | &nbsp {{uploadText}}
+           input(type="file", id="file-upload", file-input="files", multiple)
+>>>>>>> c8ec22a1814e5b0e1046ed44c71685afe00b2d47
+           li(ng-repeat="file in files") {{file}}
+           button(role="button", class="btn btn-warning btn-lg disabled" ng-class="canRemove ? '' : 'disabled'" style="margin-left:15px")
+                span(class="glyphicon glyphicon-remove-circle")
+                | &nbsp Remove
+div(class="container mtb" style="margin-top: 20px;")
+    div(class="row")
+        div(class="col-sm-5 col-md-3" ng-repeat="img in imgs")
+            div(class="thumbnail" ng-class="img.selected ? 'thumbnail-selected' : ''")
+                div(style="width:253px;height:200px;margin:0 auto;position:relative")
+                    a(href="#/img/{{img.code}}" style="display: table-cell; width: 253px;height:200px;vertical-align:middle")
+                        img(ng-src="/img/thumb/{{img.code}}.png")
+                div(class="caption")
+                    span {{img.code}}.png - {{img.size | bytes}}
+                    p Some text
+                        button(class="btn pull-right" ng-class="img.selected ? 'btn-info' : 'btn-default'" ng-click="toggleSelect(img)")
+                            span(class="glyphicon" ng-class="img.selected ? 'glyphicon-check' : 'glyphicon-unchecked'")
+                            | &nbsp {{img.selected ? 'Selected' : 'Select'}}

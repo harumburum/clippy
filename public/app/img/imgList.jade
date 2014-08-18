@@ -5,14 +5,12 @@ div(id="blue", style="padding-bottom: 15px;margin-bottom: 20px;")
            button(role="button", class="btn btn-success btn-lg" style="margin-left:15px" ng-click="openFileDialog()")
                 span(class="glyphicon glyphicon-upload")
                 | &nbsp Upload Image
-           input(type="file", id="file-upload", file-input="files")
-           button(role="button", class="btn btn-warning btn-lg"  style="margin-left:15px" ng-click="startUpload()")
-               span(class="glyphicon glyphicon-save")
-               | &nbsp Start Upload
-           li(ng-repeat="file in files") {{file}}
+           input(type="file", id="file-upload", file-input="files", class="hidden")
            button(role="button", class="btn btn-warning btn-lg disabled" ng-class="canRemove ? '' : 'disabled'" style="margin-left:15px")
                 span(class="glyphicon glyphicon-remove-circle")
                 | &nbsp Remove
+           ul
+                li(ng-repeat="file in files") {{file}}
 div(class="container mtb" style="margin-top: 20px;")
     div(class="row")
         div(class="col-sm-5 col-md-3" ng-repeat="img in imgs")

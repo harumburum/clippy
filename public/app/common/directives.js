@@ -11,6 +11,7 @@
                     $parse(attrs.fileInput)
                         .assign(scope, element[0].files);
                     scope.$apply();
+                    scope.$emit('startUpload');
                 });
             }
         }

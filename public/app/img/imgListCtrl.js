@@ -11,7 +11,8 @@
         vm.toggleSelect = toggleSelect;
         vm.removeSelected = removeSelected;
         vm.openFileDialog = openFileDialog;
-        vm.startUpload = startUpload;
+        vm.isUploading = false;
+        vm.uploadText = 'Upload Image';
 
         function openFileDialog(){
             $timeout(function() {
@@ -19,6 +20,7 @@
             }, 100);
         }
 
+        vm.$on('startUpload', startUpload);
         function startUpload(){
             if(vm.files.length == 0){
                 return;
@@ -34,21 +36,28 @@
                     filesToUpload.push(file);
                 }
             }
-
             //TODO: upload and show progress
-            var fd = new FormData();
-            //Take the first selected file
-            fd.append("file", filesToUpload[0]);
+            //TODO: upload and show progress
+            if(filesToUpload.length == 0){
+                return;
+            }
+            vm.isUploading = true;
+            for(var i = 0; i < filesToUpload.length; i ++){
+                vm.uploadText = "Uploading " + (i + 1) + " of " + filesToUpload.length;
 
-            $http.post('/u', fd, {
-                withCredentials: true,
-                headers: {'Content-Type': undefined },
-                transformRequest: angular.identity
-            }).success(function(img){
-                vm.imgs.unshift(img);
-            }).error( function(){
-
-            } );
+                var fd = new FormData();
+                fd.append('file', filesToUpload[i]);
+                $http.post('upload', fd,
+                    {
+                        transformRequest: angular.identity,
+                        headers: {'Content-Type':undefined}
+                    }
+                ).success(function(image) {
+                    vm.imgs.unshift(image);
+                }).error( function(err){
+                    console.log(err);
+                });
+            }
         }
 
         function removeSelected(){
@@ -56,12 +65,22 @@
                 return;
             }
 
-            //TODO: show confirmation dialog
+            //TODO: replace with bootstrap dialog
+            if(!confirm("Are you sure you want to delete?")){
+                return;
+            }
 
-            //TODO: remove action
+            //TODO: collect data to remove
+            var imgCodesToRemove = [];
+            for(var i = 0; i < vm.imgs.length; i ++){
+                var img = vm.imgs[i];
+                if(img.selected) {
+                    imgCodesToRemove.push(img.code);
+                }
+            }
 
-            //TODO: hide removed
-
+            //TODO: remove
+            $http.remove('api/images')
             vm.canRemove = false;
         }
 
@@ -81,7 +100,5 @@
                 vm.canRemove = false;
             }
         }
-
-
     }
 })();
