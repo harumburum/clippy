@@ -66,12 +66,22 @@
                 return;
             }
 
-            //TODO: show confirmation dialog
+            //TODO: replace with bootstrap dialog
+            if(!confirm("Are you sure you want to delete?")){
+                return;
+            }
 
-            //TODO: remove action
+            //TODO: collect data to remove
+            var imgCodesToRemove = [];
+            for(var i = 0; i < vm.imgs.length; i ++){
+                var img = vm.imgs[i];
+                if(img.selected) {
+                    imgCodesToRemove.push(img.code);
+                }
+            }
 
-            //TODO: hide removed
-
+            //TODO: remove
+            $http.remove('api/images')
             vm.canRemove = false;
         }
 
@@ -91,7 +101,5 @@
                 vm.canRemove = false;
             }
         }
-
-
     }
 })();

@@ -35,7 +35,7 @@ app.use(stylus.middleware(
 
 //Setup db
 var mongoose = require('mongoose'),
-    imgModel = require('./server/models/Img');
+    imgModel = require('./server/models/Image');
 
 mongoose.connect('mongodb://localhost/img2net');
 var db = mongoose.connection;
@@ -44,15 +44,14 @@ db.once('open', function callback(){
     console.log("Database connection opened...")
 });
 
-
-
-
-var messageSchema = mongoose.Schema({message: String});
-var Message = mongoose.model('Message', messageSchema);
-Message.findOne().exec(function(err, messageDoc){  });
-
 //Setup application routes
 var router  = express.Router();
+
+var images = require('./server/controllers/images');
+router.get('/api/images', images.getImages);
+router.delete('/api/images', images.deleteImage);
+
+
 
 var fs = require('fs');
 var path = require('path');
@@ -121,9 +120,6 @@ router.post('/api/up', function(req, res, next) {
     console.log('files:' + req.files);
     res.send(200);
 });
-
-
-app.get('/api/imgs', imgModel.getImgs);
 
 router.get('/partials/*', function(req, res){
     res.render(__dirname + '/public/app/' + req.params[0]);
