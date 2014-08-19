@@ -32,10 +32,9 @@ app.use(stylus.middleware(
     }
 ));
 
-
 //Setup db
 var mongoose = require('mongoose'),
-    imgModel = require('./server/models/Image');
+    ImageModel = require('./server/models/Image');
 
 mongoose.connect('mongodb://localhost/img2net');
 var db = mongoose.connection;
@@ -48,15 +47,15 @@ db.once('open', function callback(){
 var router  = express.Router();
 
 var images = require('./server/controllers/images');
+
 router.get('/api/images', images.getImages);
-router.delete('/api/images', images.deleteImage);
-
-
+router.delete('/api/images/:code', images.deleteImage);
 
 var fs = require('fs');
 var path = require('path');
 var unique = require('./server/utilities/unique');
 var storage = require('./server/config/storage');
+//TODO: remove imagemagic module
 var im = require('imagemagick');
 var uniqueImageIdLenght = 5;
 router.post('/api/images', function(req, res, next) {
@@ -108,12 +107,12 @@ router.post('/api/images', function(req, res, next) {
 
 
         //TODO: save to db
-        imgModel.createImg(imgCode, data.length);
+        ImageModel.createImg(imgCode, data.length);
         res.send(imgCode);
     });
 });
 
-//var multiparty = require('multiparty');
+//TODO: remove multiparty module
 var http = require('http');
 var url = require('url');
 router.post('/upload', function(req, res, next) {
@@ -128,7 +127,7 @@ router.post('/upload', function(req, res, next) {
 
         var data = fs.readFileSync(file.path);
 
-        var request_url = url.parse("http://kyliavlob.com/api/images?width=250");
+        var request_url = url.parse("http://localhost:54363/images?side=250");
 
         var options = {
             method: "POST",
@@ -171,11 +170,18 @@ router.post('/upload', function(req, res, next) {
                     callback.call(null, json);
                 }
                 var thumbFileName = path.join(storage.thumbStoragePath, imgCode + '.png');
+                console.log("start write thumb: " + thumbFileName);
                 fs.writeFile(thumbFileName, response_buffer, function(err) {
                     console.log(err);
                 });
-                imgModel.createImage(imgCode, file.size, function(img){
-                    res.send(img);
+                console.log("end write thumb: " + thumbFileName);
+                console.log("start create image");
+                ImageModel.createImage(imgCode, file.size, function(err, image){
+                    if(err){
+                        console.log("Error create image: " + err);
+                        return false;
+                    }
+                    res.send(image);
                 });
             });
         });
@@ -192,27 +198,27 @@ router.get('/partials/*', function(req, res){
     res.render(__dirname + '/public/app/' + req.params[0]);
 });
 
+//TODO: refactor set image user_id
 router.get('/image/thumb/*', function(req, res){
-    var imgCode = (req.params[0] || '').replace('.png', '');
+    var imageCode = (req.params[0] || '').replace('.png', '');
     var user_id = res.cookie['user_id'];
-    console.log('code: ' + imgCode);
-    imgModel.getImgByCode(imgCode, function(err, img){
+    console.log('code: ' + imageCode);
+    ImageModel.getImageByCode(imageCode, function(err, img){
         if(img.user_id == ""){
             var guid = user_id || unique.createGuid();
             img.user_id = guid;
             img.save();
             res.cookie('user_id', guid);
         }
-        var fileName = path.join(storage.thumbStoragePath,  imgCode + '.png');
+        var fileName = path.join(storage.thumbStoragePath,  imageCode + '.png');
         res.sendfile(fileName);
     });
 });
-
 router.get('/image/*', function(req, res){
     var imgCode = (req.params[0] || '').replace('.png', '');
     var user_id = res.cookie['user_id'];
     console.log('code: ' + imgCode);
-    imgModel.getImgByCode(imgCode, function(err, img){
+    ImageModel.getImageByCode(imgCode, function(err, img){
         if(img.user_id == ""){
             var guid = user_id || unique.createGuid();
             img.user_id = guid;
@@ -240,7 +246,6 @@ router.get('*', function(req, res){
     res.render('index', { });
 });
 app.use('/', router);
-
 
 //Run node
 var port = 3030;

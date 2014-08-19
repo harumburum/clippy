@@ -2,8 +2,8 @@
     'use strict';
 
     var controllerId = 'imgListCtrl';
-    angular.module('app').controller(controllerId, ['$scope', '$timeout', '$http', 'config', 'mvCachedImgs', imgListCtrl]);
-    function imgListCtrl($scope, $timeout, $http, config, mvCachedImgs) {
+    angular.module('app').controller(controllerId, ['$scope', '$timeout', '$http', 'config', 'mvImg', 'mvCachedImgs', imgListCtrl]);
+    function imgListCtrl($scope, $timeout, $http, config, mvImg, mvCachedImgs) {
         var vm = $scope;
         vm.files = [];
         vm.imgs = mvCachedImgs.query();
@@ -26,7 +26,6 @@
                 return;
             }
 
-            //TODO: validate file size
             var filesToUpload = [];
             for(var i = 0; i < vm.files.length; i ++){
                 var file = vm.files[i];
@@ -36,15 +35,13 @@
                     filesToUpload.push(file);
                 }
             }
-            //TODO: upload and show progress
-            //TODO: upload and show progress
             if(filesToUpload.length == 0){
                 return;
             }
-            vm.isUploading = true;
-            for(var i = 0; i < filesToUpload.length; i ++){
-                vm.uploadText = "Uploading " + (i + 1) + " of " + filesToUpload.length;
 
+            vm.isUploading = true;
+            var counter = 0;
+            for(var i = 0; i < filesToUpload.length; i ++){
                 var fd = new FormData();
                 fd.append('file', filesToUpload[i]);
                 $http.post('upload', fd,
@@ -53,9 +50,21 @@
                         headers: {'Content-Type':undefined}
                     }
                 ).success(function(image) {
-                    vm.imgs.unshift(image);
-                }).error( function(err){
-                    console.log(err);
+                   counter += 1;
+                   vm.uploadText = "Uploading " + counter + " of " + filesToUpload.length;
+                   $scope.$apply();
+                   if(counter === filesToUpload.length){
+                       vm.uploadText = 'Upload Completed';
+                       $scope.$apply();
+                       $timeout(function() {
+                           vm.isUploading = false;
+                           vm.uploadText = 'Upload Image';
+                           $scope.$apply();
+                       }, 1000);
+                   }
+                   vm.imgs.unshift(image);
+                }).error(function(err){
+                    alert(err);
                 });
             }
         }
@@ -71,16 +80,15 @@
             }
 
             //TODO: collect data to remove
-            var imgCodesToRemove = [];
-            for(var i = 0; i < vm.imgs.length; i ++){
+            for(var i = vm.imgs.length - 1; i >= 0 ; i --){
                 var img = vm.imgs[i];
+                var index = 0;
                 if(img.selected) {
-                    imgCodesToRemove.push(img.code);
+                    mvImg.delete({code:img.code},function(err){
+                        vm.imgs.splice(index + 1, 1);
+                    });
                 }
             }
-
-            //TODO: remove
-            $http.remove('api/images')
             vm.canRemove = false;
         }
 

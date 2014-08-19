@@ -5,17 +5,18 @@ exports.getImages = function(req, res){
     Image.find({}).sort({data:-1}).exec(function(err, collection){
         if(err){
             //TODO: log error
+            res.send(400);
         }
         res.send(collection);
     });
 };
 
 exports.deleteImage = function(req, res){
-    if(!req.params.id){
+    if(!req.params.code){
         res.send(400);
     }
-    //TODO: check documentation
-    Image.remove({code: req.params.id}).exec(function(err){
+    //TODO: check user_id
+    Image.remove({code: req.params.code}).exec(function(err){
         if(err){
             //TODO: log error
            res.send(400);
