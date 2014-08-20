@@ -2,11 +2,11 @@
     'use strict';
 
     var controllerId = 'imgListCtrl';
-    angular.module('app').controller(controllerId, ['$scope', '$timeout', '$http', 'config', 'mvImg', 'mvCachedImgs', imgListCtrl]);
-    function imgListCtrl($scope, $timeout, $http, config, mvImg, mvCachedImgs) {
+    angular.module('app').controller(controllerId, ['$scope', 'common', 'config', 'mvImg', 'mvCachedImgs', imgListCtrl]);
+    function imgListCtrl($scope, common, config, mvImg, mvCachedImgs) {
         var vm = $scope;
         vm.files = [];
-        vm.imgs = mvCachedImgs.query();
+        vm.images = [];
         vm.canRemove = false;
         vm.toggleSelect = toggleSelect;
         vm.removeSelected = removeSelected;
@@ -14,8 +14,25 @@
         vm.isUploading = false;
         vm.uploadText = 'Upload Image';
 
+        function activate(){
+            var promises = [getImages()];
+            common.activateController(promises, controllerId)
+                .then(function () {  });
+        }
+
+        activate();
+
+        function getImages(){
+            var dfd = common.$q.defer();
+            common.$timeout(function(){
+                vm.images = mvCachedImgs.query();
+                dfd.resolve(true);
+            }, 100);
+            return dfd.promise;
+        }
+
         function openFileDialog(){
-            $timeout(function() {
+            common.$timeout(function() {
                 angular.element('#file-upload').trigger('click');
             }, 100);
         }
@@ -44,7 +61,7 @@
             for(var i = 0; i < filesToUpload.length; i ++){
                 var fd = new FormData();
                 fd.append('file', filesToUpload[i]);
-                $http.post('upload', fd,
+                common.$http.post('upload', fd,
                     {
                         transformRequest: angular.identity,
                         headers: {'Content-Type':undefined}
@@ -56,13 +73,13 @@
                    if(counter === filesToUpload.length){
                        vm.uploadText = 'Upload Completed';
                        $scope.$apply();
-                       $timeout(function() {
+                       common.$timeout(function() {
                            vm.isUploading = false;
                            vm.uploadText = 'Upload Image';
                            $scope.$apply();
                        }, 1000);
                    }
-                   vm.imgs.unshift(image);
+                   vm.images.unshift(image);
                 }).error(function(err){
                     alert(err);
                 });
@@ -74,21 +91,38 @@
                 return;
             }
 
-            //TODO: replace with bootstrap dialog
-            if(!confirm("Are you sure you want to delete?")){
+            if(!confirm("Are you sure you want to remove?")){
                 return;
             }
 
-            //TODO: collect data to remove
-            for(var i = vm.imgs.length - 1; i >= 0 ; i --){
-                var img = vm.imgs[i];
-                var index = 0;
+            var imagesToDelete = [];
+            for(var i = vm.images.length - 1; i >= 0 ; i --){
+                var img = vm.images[i];
                 if(img.selected) {
-                    mvImg.delete({code:img.code},function(err){
-                        vm.imgs.splice(index + 1, 1);
-                    });
+                    imagesToDelete.unshift(img);
                 }
             }
+
+            function deleteImagesOnyByOne(){
+                if(imagesToDelete.length === 0){ return; }
+                var image = imagesToDelete.shift();
+                mvImg.delete({code:image.code},function(err){
+                    removeImageFromList(image);
+                    deleteImagesOnyByOne();
+                });
+            }
+
+            function removeImageFromList(image){
+                for(var i = 0; i < vm.images.length; i++){
+                    if(vm.images[i].code === image.code){
+                        vm.images.splice(i, 1);
+                        return;
+                    }
+                }
+            }
+
+            deleteImagesOnyByOne();
+
             vm.canRemove = false;
         }
 
@@ -99,8 +133,8 @@
                 return;
             } else {
                 var i = 0;
-                for(i;i < vm.imgs.length;i++){
-                    if(vm.imgs[i].selected){
+                for(i;i < vm.images.length;i++){
+                    if(vm.images[i].selected){
                         vm.canRemove = true;
                         return;
                     }

@@ -127,7 +127,7 @@ router.post('/upload', function(req, res, next) {
 
         var data = fs.readFileSync(file.path);
 
-        var request_url = url.parse("http://localhost:54363/images?side=250");
+        var request_url = url.parse("http://kyliavlob.com/api/images?side=250");
 
         var options = {
             method: "POST",
