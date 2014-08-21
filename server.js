@@ -113,83 +113,38 @@ router.post('/api/images', function(req, res, next) {
 
 //TODO: remove multiparty module
 var http = require('http');
-var url = require('url');
+
+
+var file = require('./server/utilities/file');
+var thumb = require('./server/utilities/thumb');
+
 router.post('/upload', function(req, res, next) {
     if(req.files.file){
-        var file = req.files.file;
-        var ext = file.extension;
-        var imgCode = unique.createString(uniqueImageIdLenght);
-        var fn = (imgCode + '.' + ext);
-        var fileName = path.join(storage.storagePath, fn);
+        var tempFile = req.files.file;
 
-        fs.createReadStream(file.path).pipe(fs.createWriteStream(fileName));
+        //TODO: validate image
+        var code = unique.createString(uniqueImageIdLenght);
+        var imageSize = tempFile.size;
+        var imageExtension = tempFile.extension;
+        var imageName = code + '.' + imageExtension;
+        var fullSizeImagePath = path.join(storage.storagePath, imageName);
 
-        var data = fs.readFileSync(file.path);
+        //copy temp file to storage
+        file.copy(tempFile.path, fullSizeImagePath);
 
-        var request_url = url.parse("http://kyliavlob.com/api/images?side=250");
-
-        var options = {
-            method: "POST",
-            protocol: request_url.protocol,
-            port: request_url.port,
-            hostname: request_url.hostname,
-            path: request_url.path,
-            headers: {
-                Accepts: 'application/json'
-            }
-        };
-
-        if (data) {
-            options.headers['Content-Length'] = data.length;
-        } else {
-            options.headers['Content-Length'] = 0;
-        }
-
-        var response_buffer = null;
-        var request = http.request(options);
-
-        request.on('response', function(response) {
-            response.on('data', function(chunk) {
-                if (response_buffer) {
-                    if (typeof (Buffer.concat) === 'function') {
-                        response_buffer = Buffer.concat([response_buffer, chunk]);
-                    } else {
-                        var holder = new Buffer(response_buffer.length + chunk.length);
-                        response_buffer.copy(holder);
-                        chunk.copy(holder, response_buffer.length);
-                        response_buffer = holder;
-                    }
-                } else {
-                    response_buffer = chunk;
-                }
-            });
-
-            response.on('end', function() {
-                if (typeof callback === 'function') {
-                    callback.call(null, json);
-                }
-                var thumbFileName = path.join(storage.thumbStoragePath, imgCode + '.png');
-                console.log("start write thumb: " + thumbFileName);
-                fs.writeFile(thumbFileName, response_buffer, function(err) {
-                    console.log(err);
-                });
-                console.log("end write thumb: " + thumbFileName);
-                console.log("start create image");
-                ImageModel.createImage(imgCode, file.size, function(err, image){
+        //create thumb
+        thumb.create(fullSizeImagePath, function(responseData){
+            var thumbImagePath = path.join(storage.thumbStoragePath, imageName);
+            file.createFile(thumbImagePath, responseData, function(){
+                ImageModel.createImage(imageCode, imageExtension, imageSize, function(err, image){
                     if(err){
                         console.log("Error create image: " + err);
                         return false;
                     }
                     res.send(image);
                 });
-            });
+            })
         });
-
-        if (data) {
-            request.end(data);
-        } else {
-            request.end();
-        }
     }
 });
 

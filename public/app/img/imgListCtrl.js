@@ -27,12 +27,7 @@
             var dfd = common.$q.defer();
             common.$timeout(function(){
                 vm.images = mvCachedImgs.query();
-                for(var i = 0; i < vm.images.length; i++){
-                    if(vm.images[i].selected){
-                        vm.canRemove = true;
-                        return;
-                    }
-                }
+                _refreshRemoveButton();
                 dfd.resolve(true);
             }, 100);
             return dfd.promise;
@@ -98,6 +93,7 @@
 
             mvImg.delete({code:image.code},function(err){
                 _removeImageFromList(image);
+                _refreshRemoveButton();
             });
         }
 
@@ -157,6 +153,16 @@
                     return;
                 }
             }
+        }
+
+        function _refreshRemoveButton(){
+            for(var i = 0; i < vm.images.length; i++){
+                if(vm.images[i].selected){
+                    vm.canRemove = true;
+                    return;
+                }
+            }
+            vm.canRemove = false;
         }
     }
 })();

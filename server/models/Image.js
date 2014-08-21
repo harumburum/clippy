@@ -2,6 +2,7 @@ var mongoose = require('mongoose');
 
 var imageSchema = mongoose.Schema({
     code: {type: String, required: '{PATH} is required!'},
+    extension: {type: String, required: '{PATH} is required!'},
     date: {type: Date, required: '{PATH} is required!'},
     size: {type: Number, required: '{PATH} is required!'},
     user_id: { type: String }
@@ -19,12 +20,13 @@ exports.getImageByCode = function (code, callback) {
     Image.findOne({ code: code }).exec(callback);
 };
 
-exports.createImage = function(code, size, callback){
+exports.createImage = function(code, extension, size, callback){
     var imageData = {};
     imageData.code = code;
     imageData.date = new Date();
     imageData.user_id = '';
     imageData.size = size;
+    imageData.extension = extension;
     Image.create(imageData, callback);
 };
 
