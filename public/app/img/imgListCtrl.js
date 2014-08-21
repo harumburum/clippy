@@ -10,9 +10,10 @@
         vm.canRemove = false;
         vm.toggleSelect = toggleSelect;
         vm.removeSelected = removeSelected;
+        vm.remove = remove;
         vm.openFileDialog = openFileDialog;
         vm.isUploading = false;
-        vm.uploadText = 'Upload Image';
+        vm.uploadText = 'Upload';
 
         function activate(){
             var promises = [getImages()];
@@ -26,6 +27,12 @@
             var dfd = common.$q.defer();
             common.$timeout(function(){
                 vm.images = mvCachedImgs.query();
+                for(var i = 0; i < vm.images.length; i++){
+                    if(vm.images[i].selected){
+                        vm.canRemove = true;
+                        return;
+                    }
+                }
                 dfd.resolve(true);
             }, 100);
             return dfd.promise;
@@ -69,14 +76,11 @@
                 ).success(function(image) {
                    counter += 1;
                    vm.uploadText = "Uploading " + counter + " of " + filesToUpload.length;
-                   $scope.$apply();
                    if(counter === filesToUpload.length){
                        vm.uploadText = 'Upload Completed';
-                       $scope.$apply();
                        common.$timeout(function() {
                            vm.isUploading = false;
-                           vm.uploadText = 'Upload Image';
-                           $scope.$apply();
+                           vm.uploadText = 'Upload';
                        }, 1000);
                    }
                    vm.images.unshift(image);
@@ -84,46 +88,17 @@
                     alert(err);
                 });
             }
+            vm.$emit('finishUpload');
         }
 
-        function removeSelected(){
-            if(!vm.canRemove){
-                return;
-            }
-
+        function remove(image){
             if(!confirm("Are you sure you want to remove?")){
                 return;
             }
 
-            var imagesToDelete = [];
-            for(var i = vm.images.length - 1; i >= 0 ; i --){
-                var img = vm.images[i];
-                if(img.selected) {
-                    imagesToDelete.unshift(img);
-                }
-            }
-
-            function deleteImagesOnyByOne(){
-                if(imagesToDelete.length === 0){ return; }
-                var image = imagesToDelete.shift();
-                mvImg.delete({code:image.code},function(err){
-                    removeImageFromList(image);
-                    deleteImagesOnyByOne();
-                });
-            }
-
-            function removeImageFromList(image){
-                for(var i = 0; i < vm.images.length; i++){
-                    if(vm.images[i].code === image.code){
-                        vm.images.splice(i, 1);
-                        return;
-                    }
-                }
-            }
-
-            deleteImagesOnyByOne();
-
-            vm.canRemove = false;
+            mvImg.delete({code:image.code},function(err){
+                _removeImageFromList(image);
+            });
         }
 
         function toggleSelect(img){
@@ -140,6 +115,47 @@
                     }
                 }
                 vm.canRemove = false;
+            }
+        }
+
+        function removeSelected(){
+            if(!vm.canRemove){
+                return;
+            }
+
+            //TODO: replace with bs dialog
+            if(!confirm("Are you sure you want to remove?")){
+                return;
+            }
+
+            var imagesToDelete = [];
+            for(var i = vm.images.length - 1; i >= 0 ; i --){
+                var img = vm.images[i];
+                if(img.selected) {
+                    imagesToDelete.unshift(img);
+                }
+            }
+
+            function deleteImagesOnyByOne(){
+                if(imagesToDelete.length === 0){ return; }
+                var image = imagesToDelete.shift();
+                mvImg.delete({code:image.code},function(err){
+                    _removeImageFromList(image);
+                    deleteImagesOnyByOne();
+                });
+            }
+
+            deleteImagesOnyByOne();
+
+            vm.canRemove = false;
+        }
+
+        function _removeImageFromList(image){
+            for(var i = 0; i < vm.images.length; i++){
+                if(vm.images[i].code === image.code){
+                    vm.images.splice(i, 1);
+                    return;
+                }
             }
         }
     }

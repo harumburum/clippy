@@ -585,3 +585,20 @@ csmall2 {
 .has-spinner.btn-large.active .spinner {
     width: 19px;
 }
+
+.select-image{
+    position: absolute;
+    right: 25px;
+    top: 10px;
+    font-size: 25px;
+    opacity: 0.5;
+    z-index: 1;
+}
+
+.glyphicon-check.select-image{
+    opacity: 1;
+}
+
+.select-image:hover{
+    opacity: 1;
+}

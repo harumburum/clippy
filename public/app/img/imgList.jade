@@ -1,11 +1,11 @@
 div(id="blue", style="padding-bottom: 15px;margin-bottom: 20px;")
    .container
        .row
-           //h3 My Images
            button(role="button", class="btn btn-success btn-lg", style="margin-left:15px", ng-click="openFileDialog()", ng-disabled="isUploading")
                 span(class="glyphicon glyphicon-upload" ng-hide="isUploading")
                 | &nbsp {{uploadText}}
-           input(type="file", id="file-upload", file-input="files", class="hidden", multiple)
+           form(class="hidden")
+                input(type="file", id="file-upload", file-input="files", class="hidden", multiple)
            button(role="button", class="btn btn-warning btn-lg disabled", style="margin-left:15px", ng-class="canRemove ? '' : 'disabled'", ng-click="removeSelected()")
                 span(class="glyphicon glyphicon-remove-circle")
                 | &nbsp Remove
@@ -13,6 +13,7 @@ div(class="container mtb" style="margin-top: 20px;")
     div(class="row")
         div(class="col-sm-5 col-md-3 fader-animation" ng-repeat="image in images")
             div(class="thumbnail" ng-class="image.selected ? 'thumbnail-selected' : ''")
+                span(class="select-image glyphicon", ng-click="toggleSelect(image)", ng-class="image.selected ? 'glyphicon-check' : 'glyphicon-unchecked'")
                 div(style="width:253px;height:180px;margin:0 auto;position:relative")
                     a(href="#/img/{{image.code}}" style="display: table-cell; width: 253px;height:200px;vertical-align:middle")
                         img(ng-src="/image/thumb/{{image.code}}.png")
@@ -25,17 +26,21 @@ div(class="container mtb" style="margin-top: 20px;")
                                 | Menu &nbsp;
                                 span(class="caret")
                                 span(class="sr-only") Toggle Dropdown
-                            ul(class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1")
+                            ul(class="dropdown-menu" role="menu")
                                 li(role="presentation")
-                                    a(role="menuitem" tabindex="-1" href='')
+                                    a(role="menuitem", href="http://localhost:3030/d/{{image.code}}.png", onclick="var that=this;setTimeout(function(){location.href=that.href;}, 200);return false;")
+                                        span(class="glyphicon glyphicon-download")
+                                        | &nbsp; Download
+                                li(role="presentation")
+                                    a(role="menuitem", href="", ng-click="remove(image)")
                                         span(class="glyphicon glyphicon-remove-circle")
                                         | &nbsp; Remove
                                 li(role="presentation")
-                                    a(role="menuitem" tabindex="-1" href='')
+                                    a(role="menuitem", href="")
                                         span(class="glyphicon glyphicon-share")
                                         | &nbsp; Get embed code
                                 li(role="presentation")
-                                    a(role="menuitem" tabindex="-1" href='')
+                                    a(role="menuitem", href="")
                                         span(class="glyphicon glyphicon-link")
                                         | &nbsp; Copy short link
     div(class="row", style="min-height:300px", ng-show="images.length === 0")

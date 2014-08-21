@@ -103,7 +103,6 @@ router.post('/api/images', function(req, res, next) {
                 if (err) throw err;
                 console.log('resized kittens.jpg to fit within 256x256px');
             });
-        /*});*/
 
 
         //TODO: save to db
