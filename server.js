@@ -123,10 +123,10 @@ router.post('/upload', function(req, res, next) {
         var tempFile = req.files.file;
 
         //TODO: validate image
-        var code = unique.createString(uniqueImageIdLenght);
+        var imageCode = unique.createString(uniqueImageIdLenght);
         var imageSize = tempFile.size;
         var imageExtension = tempFile.extension;
-        var imageName = code + '.' + imageExtension;
+        var imageName = imageCode + '.' + imageExtension;
         var fullSizeImagePath = path.join(storage.storagePath, imageName);
 
         //copy temp file to storage

@@ -13,11 +13,11 @@ exports.getStream = function(srcFilePath){
     if(!fs.existsSync(srcFilePath)){
         throw new Error("File '" + srcFilePath +"' was not found.");
     }
-    return sfs.readFileSync(fullSizeImage);
+    return fs.readFileSync(srcFilePath);
 };
 
 
-exports.createFile = functin(filePaht, buffer, callback){
+exports.createFile = function(filePaht, buffer, callback){
     fs.writeFile(filePaht, buffer, function(err){
         callback();
     });
@@ -25,4 +25,8 @@ exports.createFile = functin(filePaht, buffer, callback){
 
 exports.getExtension = function(srcFilePath){
     return srcFilePath.split('.').pop();
+};
+
+exports.exists = function(srcFilePath){
+    return fs.existsSync(srcFilePath);
 };
