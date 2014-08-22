@@ -24,13 +24,10 @@
         activate();
 
         function getImages(){
-            var dfd = common.$q.defer();
-            common.$timeout(function(){
-                vm.images = mvCachedImgs.query();
+            return mvCachedImgs.query().$promise.then(function(images){
+                vm.images = images;
                 _refreshRemoveButton();
-                dfd.resolve(true);
-            }, 100);
-            return dfd.promise;
+            });
         }
 
         function openFileDialog(){

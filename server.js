@@ -159,13 +159,17 @@ router.get('/image/thumb/*', function(req, res){
     //TODO: check exist
     //TODO: validate
 
-    var imagePath = path.join(storage.thumbStoragePath,  imageName);
+    var imagePath = path.join(storage.thumbStoragePath, imageName);
     res.sendfile(imagePath);
 });
 
 //TODO: refactor set image user_id
 router.get('/image/*', function(req, res){
-    var imgCode = (req.params[0] || '').replace('.png', '');
+    var imageName = (req.params[0] || '');
+    var imagePath = path.join(storage.storagePath, imageName);
+    res.sendfile(imagePath);
+
+    /*var imgCode = (req.params[0] || '').replace('.png', '');
     var user_id = res.cookie['user_id'];
     console.log('code: ' + imgCode);
     ImageModel.getImageByCode(imgCode, function(err, img){
@@ -177,7 +181,7 @@ router.get('/image/*', function(req, res){
         }
         var fileName = path.join(storage.storagePath,  imgCode + '.png');
         res.sendfile(fileName);
-    });
+    });*/
 });
 
 router.get('/d/*', function(req, res){
