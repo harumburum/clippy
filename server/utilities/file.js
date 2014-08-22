@@ -1,19 +1,27 @@
 var fs = require('fs');
 
-exports.copy = function(srcFilePath, desFilePath){
+exports.copy = function(srcFilePath, desFilePath, callback){
     if(!fs.existsSync(srcFilePath)){
         throw new Error("File '" + srcFilePath +"' was not found.");
     }
     var readStream = fs.createReadStream(srcFilePath);
     var writeStream = fs.createWriteStream(desFilePath);
     readStream.pipe(writeStream);
+    readStream.on('end', function() {
+        callback();
+    });
 };
 
-exports.getStream = function(srcFilePath){
+exports.getStream = function(srcFilePath, callback){
     if(!fs.existsSync(srcFilePath)){
         throw new Error("File '" + srcFilePath +"' was not found.");
     }
-    return fs.readFileSync(srcFilePath);
+    fs.readFile(srcFilePath, function(err, data){
+        if(err){
+            callback(err);
+        }
+        callback(data);
+    });
 };
 
 

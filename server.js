@@ -130,21 +130,23 @@ router.post('/upload', function(req, res, next) {
         var fullSizeImagePath = path.join(storage.storagePath, imageName);
 
         //copy temp file to storage
-        file.copy(tempFile.path, fullSizeImagePath);
+        file.copy(tempFile.path, fullSizeImagePath, fileCopied);
 
-        //create thumb
-        thumb.create(fullSizeImagePath, function(responseData){
-            var thumbImagePath = path.join(storage.thumbStoragePath, imageName);
-            file.createFile(thumbImagePath, responseData, function(){
-                ImageModel.createImage(imageCode, imageExtension, imageSize, function(err, image){
-                    if(err){
-                        console.log("Error create image: " + err);
-                        return false;
-                    }
-                    res.send(image);
-                });
-            })
-        });
+        function fileCopied(){
+            //create thumb
+            thumb.create(fullSizeImagePath, function(responseData){
+                var thumbImagePath = path.join(storage.thumbStoragePath, imageName);
+                file.createFile(thumbImagePath, responseData, function(){
+                    ImageModel.createImage(imageCode, imageExtension, imageSize, function(err, image){
+                        if(err){
+                            console.log("Error create image: " + err);
+                            return false;
+                        }
+                        res.send(image);
+                    });
+                })
+            });
+        }
     }
 });
 
@@ -152,22 +154,16 @@ router.get('/partials/*', function(req, res){
     res.render(__dirname + '/public/app/' + req.params[0]);
 });
 
-//TODO: refactor set image user_id
 router.get('/image/thumb/*', function(req, res){
-    var imageCode = (req.params[0] || '').replace('.png', '');
-    var user_id = res.cookie['user_id'];
-    console.log('code: ' + imageCode);
-    ImageModel.getImageByCode(imageCode, function(err, img){
-        if(img.user_id == ""){
-            var guid = user_id || unique.createGuid();
-            img.user_id = guid;
-            img.save();
-            res.cookie('user_id', guid);
-        }
-        var fileName = path.join(storage.thumbStoragePath,  imageCode + '.png');
-        res.sendfile(fileName);
-    });
+    var imageName = req.params[0] || '';
+    //TODO: check exist
+    //TODO: validate
+
+    var imagePath = path.join(storage.thumbStoragePath,  imageName);
+    res.sendfile(imagePath);
 });
+
+//TODO: refactor set image user_id
 router.get('/image/*', function(req, res){
     var imgCode = (req.params[0] || '').replace('.png', '');
     var user_id = res.cookie['user_id'];
@@ -189,11 +185,11 @@ router.get('/d/*', function(req, res){
     //TODO: check safe path, length
     //TODO: show 404
 
-    var imgCode = (req.params[0] || '').replace('.png', '');
-    var fileName = path.join(storage.storagePath,  imgCode + '.png');
-    res.set('Content-disposition', 'attachment; filename=' + imgCode + '.png');
+    var imageName = (req.params[0] || '');
+    var imagePath = path.join(storage.storagePath, imageName);
+    res.set('Content-disposition', 'attachment; filename=' + imageName);
     res.set('Content-type', 'application/octet-stream');
-    res.sendfile(fileName);
+    res.sendfile(imagePath);
 });
 
 router.get('*', function(req, res){

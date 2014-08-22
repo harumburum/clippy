@@ -1,8 +1,9 @@
 var url         = require('url');
 var http        = require('http');
-var SERVICE_URL  = "http://kyliavlob.com/api/images";
+//var SERVICE_URL  = "http://kyliavlob.com/api/images";
+var SERVICE_URL  = "http://localhost:54363/images";
 
-exports.getThumbBuffer = function(fileStream, side, format, callback){
+exports.getThumbBuffer = function(buffer, side, format, callback){
     var thumbApiUrl = url.parse(SERVICE_URL + "?side=" + side + "&format=" + format);
     var requestOptions = {
         method: "POST",
@@ -12,7 +13,7 @@ exports.getThumbBuffer = function(fileStream, side, format, callback){
         path: thumbApiUrl.path,
         headers: {
             'Accepts': 'application/json',
-            'Content-Length': fileStream.length
+            'Content-Length': buffer.length
         }
     };
 
@@ -39,5 +40,5 @@ exports.getThumbBuffer = function(fileStream, side, format, callback){
             }
         });
     });
-    request.end(fileStream);
+    request.end(buffer);
 };

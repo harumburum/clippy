@@ -7,7 +7,8 @@ exports.create = function(srcFilePath, callback){
     if(!file.exists(srcFilePath)){
         throw new Error("File '" + srcFilePath +"' was not found.");
     }
-    var fileStream = file.getStream(srcFilePath);
-    var extension = file.getExtension(srcFilePath);
-    imageService.getThumbBuffer(fileStream, thumbConfig.thumbSideSize, extension, callback)
+    file.getStream(srcFilePath, function(buffer){
+        var extension = file.getExtension(srcFilePath);
+        imageService.getThumbBuffer(buffer, thumbConfig.thumbSideSize, extension, callback)
+    });
 };
