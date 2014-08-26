@@ -47,7 +47,7 @@
                 var file = vm.files[i];
                 if(file.size && file.size > config.maxUploadFileSize){
                     alert("Cant upload image" + file.name + ". Max file size is 20MB.")
-                } else {
+                else {
                     filesToUpload.push(file);
                 }
             }
@@ -56,30 +56,31 @@
             }
 
             vm.isUploading = true;
-            var counter = 0;
-            for(var i = 0; i < filesToUpload.length; i ++){
+            function uploadFilesOneByOne(){
+                if(filesToUpload.length === 0){ return; }
+                var file = filesToUpload.shift();
                 var fd = new FormData();
-                fd.append('file', filesToUpload[i]);
+                fd.append('file', file);
                 common.$http.post('upload', fd,
                     {
                         transformRequest: angular.identity,
                         headers: {'Content-Type':undefined}
                     }
                 ).success(function(image) {
-                   counter += 1;
-                   vm.uploadText = "Uploading " + counter + " of " + filesToUpload.length;
-                   if(counter === filesToUpload.length){
-                       vm.uploadText = 'Upload Completed';
-                       common.$timeout(function() {
-                           vm.isUploading = false;
-                           vm.uploadText = 'Upload';
-                       }, 1000);
-                   }
-                   vm.images.unshift(image);
-                }).error(function(err){
-                    alert(err);
+                    vm.images.unshift(image);
+                    //TODO: refactor to completed
+                    uploadFilesOneByOne()
+                }).error(function(){
+                    alert("Upload failed.");
+                    uploadFilesOneByOne();
                 });
             }
+
+            uploadFilesOneByOne();
+
+            vm.isUploading = false;
+
+            //let directive know that we finished
             vm.$emit('finishUpload');
         }
 

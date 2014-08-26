@@ -31,6 +31,12 @@ exports.createFile = function(filePaht, buffer, callback){
     });
 };
 
+exports.createBase64File = function(filePaht, buffer, callback){
+    fs.writeFile(filePaht, buffer, 'base64', function(err){
+        callback();
+    });
+};
+
 exports.getExtension = function(srcFilePath){
     return srcFilePath.split('.').pop();
 };

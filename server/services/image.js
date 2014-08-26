@@ -18,8 +18,18 @@ exports.getThumbBuffer = function(buffer, side, format, callback){
     };
 
     var responseBuffer = null;
+    var responseError = false;
     var request = http.request(requestOptions);
+    request.on('error', function(err){
+       console.log('Images api service error. ' + err);
+       responseError = true;
+       callback.call(null, err, responseError);
+    });
     request.on('response', function(response) {
+        if(response.statusCode !== 200){
+            console.log('Api returned: ' + response.statusCode);
+            responseError = true;
+        }
         response.on('data', function(chunk) {
             if (responseBuffer) {
                 if (typeof (Buffer.concat) === 'function') {
@@ -36,7 +46,7 @@ exports.getThumbBuffer = function(buffer, side, format, callback){
         });
         response.on('end', function() {
             if (typeof callback === 'function') {
-                callback.call(null, responseBuffer);
+                callback.call(null, responseBuffer, responseError);
             }
         });
     });
