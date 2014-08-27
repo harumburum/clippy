@@ -1,0 +1,18 @@
+div(class="modal-header")
+    h4(class="modal-title") Image Embed Code
+div(class="modal-body")
+    form(role="form")
+        div(class="form-group")
+            label IM
+            input(type="text", class="form-control", value="http://i2n.me/code", onClick="this.select();")
+        div(class="form-group")
+            label Blog, Html
+            input(type="text", class="form-control", value="<a href=\"http://i2n.me/iHemXN\"><img src=\"http://i2n.me/iHemXN.png\" alt=\"de5Vd\"/></a>", onClick="this.select();")
+        div(class="form-group")
+            label Forum
+            input(type="text", class="form-control", value="[url=http://i2n.me/iHemXN][img]http://i2n.me/iHemXN.png[/img][/url]", onClick="this.select();")
+        div(class="form-group")
+            label Wiki
+            input(type="text", class="form-control", value="[[http://i2n.me/iHemXN|http://i2n.me/iHemXN.png]]", onClick="this.select();")
+div(class="modal-footer")
+    button(class="btn btn-warning" ng-click="cancel()") Close

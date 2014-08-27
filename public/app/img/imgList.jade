@@ -32,17 +32,13 @@ div(class="container mtb" style="margin-top: 20px;")
                                         span(class="glyphicon glyphicon-download")
                                         | &nbsp; Download
                                 li(role="presentation")
-                                    a(role="menuitem", href="", ng-click="remove(image)")
-                                        span(class="glyphicon glyphicon-remove-circle")
-                                        | &nbsp; Remove
-                                li(role="presentation")
-                                    a(role="menuitem", href="")
+                                    a(role="menuitem", href="", ng-click="open()")
                                         span(class="glyphicon glyphicon-share")
                                         | &nbsp; Get embed code
                                 li(role="presentation")
-                                    a(role="menuitem", href="")
-                                        span(class="glyphicon glyphicon-link")
-                                        | &nbsp; Copy short link
+                                    a(role="menuitem", href="", ng-click="remove(image)")
+                                        span(class="glyphicon glyphicon-remove-circle")
+                                        | &nbsp; Remove
     div(class="row", style="min-height:300px", ng-show="images.length === 0")
         div(class="col-lg-8 col-lg-offset-2 centered", style="margin-top:100px")
             h2 Upload images with "Upload Image" button or with Img2Net desktop application.

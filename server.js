@@ -133,9 +133,24 @@ router.post('/upload', function (req, res, next) {
     }
 });
 
+router.get('/template/*', function (req, res) {
+    console.log();
+    console.log();
+    console.log('get template: ' + req.params[0]);
+    var path = __dirname + '/public/vendor/ui-bootstrap/template/' + req.params[0];
+    console.log('path : "' + path + '"');
+    console.log();
+    console.log();
+    res.sendfile(path);
+    //res.render(__dirname + '/public/vendor/ui-bootstrap/template/' + req.params[0]);
+});
+
 router.get('/partials/*', function (req, res) {
     res.render(__dirname + '/public/app/' + req.params[0]);
 });
+
+
+
 
 router.get('/image/thumb/*', function (req, res) {
     var imageName = req.params[0] || '';
