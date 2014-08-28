@@ -11,7 +11,7 @@ div(class="container mtb")
             | &nbsp Download Image
         br
         br
-        input(type="text", onClick="this.select();", class="form-control" style="float:none !important; width: 300px; margin: 0 auto;" value="http://localhost:3030/image/{{image.code}}.{{image.extension}}")
+        input(type="text", onClick="this.select();", ng-click="showBadge = !showBadge" class="form-control text-center" style="float:none !important; width: 230px; margin: 0 auto;" value="http://i2n.me/{{image.code}}.{{image.extension}}")
         br
         .center-block
             span Share in social networks:

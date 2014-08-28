@@ -4,3 +4,9 @@
 .thumbnail-selected {
   background: #d9edf7;
 }
+
+.info-badge {
+    float:right;
+    opacity: 0.8;
+    background-color: #3a87ad;
+}

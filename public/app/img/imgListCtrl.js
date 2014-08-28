@@ -14,6 +14,7 @@
         vm.openFileDialog = openFileDialog;
         vm.isUploading = false;
         vm.uploadText = 'Upload';
+        vm.showEmbedCodeDialog = showEmbedCodeDialog;
 
         function activate() {
             var promises = [getImages()];
@@ -26,6 +27,9 @@
 
         function getImages() {
             return mvCachedImgs.query().$promise.then(function (images) {
+                images.forEach(function(image){
+                    image.name = image.code + '.' + image.extension;
+                });
                 vm.images = images;
                 _refreshRemoveButton();
             });
@@ -70,6 +74,7 @@
                         headers: {'Content-Type': undefined}
                     }
                 ).success(function (image) {
+                        image.name = image.code + '.' + image.extension;
                         vm.images.unshift(image);
                         //TODO: refactor to completed
                         uploadFilesOneByOne()
@@ -168,45 +173,43 @@
             vm.canRemove = false;
         }
 
-        //modal
-
-        $scope.items = ['item1', 'it    em2', 'item3'];
-
-        $scope.open = function (size) {
-
-            var modalInstance = $modal.open({
+        function showEmbedCodeDialog(image) {
+            $modal.open({
                 templateUrl: 'app/img/dialogs/embedFileDlg.html',
                 controller: ModalInstanceCtrl,
-                size: size,
                 resolve: {
-                    items: function () {
-                        return $scope.items;
+                    image: function () {
+                        return image;
                     }
                 }
             });
-
-            modalInstance.result.then(function (selectedItem) {
-                $scope.selected = selectedItem;
-            }, function () {
-                $log.info('Modal dismissed at: ' + new Date());
-            });
-        };
-
-
+        }
     }
 
-    var ModalInstanceCtrl = function ($scope, $modalInstance, items) {
-
-        $scope.items = items;
-        $scope.selected = {
-            item: $scope.items[0]
+    var ModalInstanceCtrl = function ($scope, $modalInstance, image) {
+        var vm = $scope;
+        vm.image = image;
+        vm.badges = {
+            'im' : false,
+            'blog' : false,
+            'forum' : false,
+            'wiki' : false
         };
+        vm.toggleBadge = toggleBadge;
 
-        $scope.ok = function () {
-            $modalInstance.close($scope.selected.item);
-        };
+        function toggleBadge(badge){
+            hideBadges();
+            vm.badges[badge] = true;
+        }
 
-        $scope.cancel = function () {
+        function hideBadges(){
+            $scope.badges['im'] = false;
+            $scope.badges['blog'] = false;
+            $scope.badges['forum'] = false;
+            $scope.badges['wiki'] = false;
+        }
+
+        vm.close = function () {
             $modalInstance.dismiss('cancel');
         };
     };

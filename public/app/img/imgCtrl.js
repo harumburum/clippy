@@ -24,7 +24,7 @@
                     if(image.code === code){
                         vm.image = image;
                     }
-                })
+                });
             });
         }
     }

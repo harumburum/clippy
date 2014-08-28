@@ -1,7 +1,7 @@
 var url         = require('url');
 var http        = require('http');
-//var SERVICE_URL  = "http://kyliavlob.com/api/images";
-var SERVICE_URL  = "http://localhost:54363/images";
+var SERVICE_URL  = "http://kyliavlob.com/api/images";
+//var SERVICE_URL  = "http://localhost:54363/images";
 
 exports.getThumbBuffer = function(buffer, side, format, callback){
     var thumbApiUrl = url.parse(SERVICE_URL + "?side=" + side + "&format=" + format);

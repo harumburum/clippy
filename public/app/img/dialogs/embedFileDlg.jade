@@ -4,15 +4,19 @@ div(class="modal-body")
     form(role="form")
         div(class="form-group")
             label IM
-            input(type="text", class="form-control", value="http://i2n.me/code", onClick="this.select();")
+            kbd(class="info-badge", ng-show="badges['im']") Ctrl+C to copy
+            input(type="text", class="form-control", value="http://i2n.me/{{image.code}}", onClick="this.select();", ng-click="toggleBadge('im')")
         div(class="form-group")
             label Blog, Html
-            input(type="text", class="form-control", value="<a href=\"http://i2n.me/iHemXN\"><img src=\"http://i2n.me/iHemXN.png\" alt=\"de5Vd\"/></a>", onClick="this.select();")
+            kbd(class="info-badge", ng-show="badges['blog']") Ctrl+C to copy
+            input(type="text", class="form-control", value="<a href=\"http://i2n.me/{{image.code}}\"><img src=\"http://i2n.me/{{image.name}}\" alt=\"de5Vd\"/></a>", onClick="this.select();", ng-click="toggleBadge('blog')")
         div(class="form-group")
             label Forum
-            input(type="text", class="form-control", value="[url=http://i2n.me/iHemXN][img]http://i2n.me/iHemXN.png[/img][/url]", onClick="this.select();")
+            kbd(class="info-badge", ng-show="badges['forum']") Ctrl+C to copy
+            input(type="text", class="form-control", value="[url=http://i2n.me/{{image.code}}][img]http://i2n.me/{{image.name}}[/img][/url]", onClick="this.select();", ng-click="toggleBadge('forum')")
         div(class="form-group")
             label Wiki
-            input(type="text", class="form-control", value="[[http://i2n.me/iHemXN|http://i2n.me/iHemXN.png]]", onClick="this.select();")
+            kbd(class="info-badge", ng-show="badges['wiki']") Ctrl+C to copy
+            input(type="text", class="form-control", value="[[http://i2n.me/{{image.code}}|http://i2n.me/{{image.name}}]]", onClick="this.select();", ng-click="toggleBadge('wiki')")
 div(class="modal-footer")
-    button(class="btn btn-warning" ng-click="cancel()") Close
+    button(class="btn btn-warning" ng-click="close()") Close
