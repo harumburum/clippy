@@ -5,5 +5,6 @@ angular.module('app').config(function($routeProvider, $locationProvider){
     $routeProvider
         .when('/', {templateUrl: '/partials/main/main', controller: 'mainCtrl'})
         .when('/img', {templateUrl: '/partials/img/imgList', controller: 'imgListCtrl'})
-        .when('/img/:id', {templateUrl: '/partials/img/img', controller: 'imgCtrl'});
+        .when('/img/:id', {templateUrl: '/partials/img/img', controller: 'imgCtrl'})
+        .when('/account/signup', {templateUrl: '/partials/account/signUp', controller: 'signUpCtrl'});
 });

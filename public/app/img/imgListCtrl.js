@@ -5,6 +5,9 @@
     angular.module('app').controller(controllerId, ['$scope', 'common', 'config', 'mvImg', 'mvCachedImgs', '$modal', imgListCtrl]);
     function imgListCtrl($scope, common, config, mvImg, mvCachedImgs, $modal) {
         var vm = $scope;
+        var $q = common.$q;
+        var $http = common.$http;
+        var $timeout = common.$timeout;
         vm.files = [];
         vm.images = [];
         vm.canRemove = false;
@@ -20,6 +23,7 @@
             var promises = [getImages()];
             common.activateController(promises, controllerId)
                 .then(function () {
+                    //activated
                 });
         }
 
@@ -31,7 +35,10 @@
                     image.name = image.code + '.' + image.extension;
                 });
                 vm.images = images;
-                _refreshRemoveButton();
+                _refreshRemoveButton().then(
+                    function (canRemove){
+                        vm.canRemove = canRemove
+                    });
             });
         }
 
@@ -68,19 +75,21 @@
                 var file = filesToUpload.shift();
                 var fd = new FormData();
                 fd.append('file', file);
-                common.$http.post('upload', fd,
+                $http.post('upload', fd,
                     {
                         transformRequest: angular.identity,
                         headers: {'Content-Type': undefined}
-                    }
-                ).success(function (image) {
+                    }).success(function (image) {
                         image.name = image.code + '.' + image.extension;
                         vm.images.unshift(image);
-                        //TODO: refactor to completed
+                        //continue
                         uploadFilesOneByOne()
-                    }).error(function () {
-                        alert("Upload failed.");
-                        uploadFilesOneByOne();
+                    }).error(function (err) {
+                        var title = "Failed to upload '" + file.name + "'";
+                        showErrorMessageDialog(title, err, function(){
+                            //continue
+                            uploadFilesOneByOne();
+                        });
                     });
             }
 
@@ -93,14 +102,15 @@
         }
 
         function remove(image) {
-            if (!confirm("Are you sure you want to remove?")) {
-                return;
-            }
-
-            mvImg.delete({code: image.code}, function (err) {
-                _removeImageFromList(image);
-                _refreshRemoveButton();
-            });
+            showConfirmationDialog(
+                "Removal Confirmation",
+                "Are you sure you want to remove?",
+                function(){
+                    mvImg.delete({code: image.code}, function () {
+                        _removeImageFromList(image);
+                        _refreshRemoveButton();
+                    });
+                });
         }
 
         function toggleSelect(img) {
@@ -124,34 +134,35 @@
             if (!vm.canRemove) {
                 return;
             }
+            showConfirmationDialog(
+                "Removal Confirmation",
+                "Are you sure you want to remove?",
+                function(){ removalConfirmed(); });
 
-            //TODO: replace with bs dialog
-            if (!confirm("Are you sure you want to remove?")) {
-                return;
-            }
+            function removalConfirmed() {
+               var imagesToDelete = [];
+               for (var i = vm.images.length - 1; i >= 0; i--) {
+                   var img = vm.images[i];
+                   if (img.selected) {
+                       imagesToDelete.unshift(img);
+                   }
+               }
 
-            var imagesToDelete = [];
-            for (var i = vm.images.length - 1; i >= 0; i--) {
-                var img = vm.images[i];
-                if (img.selected) {
-                    imagesToDelete.unshift(img);
-                }
-            }
+               function deleteImagesOnyByOne() {
+                   if (imagesToDelete.length === 0) {
+                       return;
+                   }
+                   var image = imagesToDelete.shift();
+                   mvImg.delete({code: image.code}, function (err) {
+                       _removeImageFromList(image);
+                       deleteImagesOnyByOne();
+                   });
+               }
 
-            function deleteImagesOnyByOne() {
-                if (imagesToDelete.length === 0) {
-                    return;
-                }
-                var image = imagesToDelete.shift();
-                mvImg.delete({code: image.code}, function (err) {
-                    _removeImageFromList(image);
-                    deleteImagesOnyByOne();
-                });
-            }
+               deleteImagesOnyByOne();
 
-            deleteImagesOnyByOne();
-
-            vm.canRemove = false;
+               vm.canRemove = false;
+           }
         }
 
         function _removeImageFromList(image) {
@@ -164,19 +175,23 @@
         }
 
         function _refreshRemoveButton() {
-            for (var i = 0; i < vm.images.length; i++) {
-                if (vm.images[i].selected) {
-                    vm.canRemove = true;
-                    return;
+            var dfd = $q.defer();
+            $timeout(function(){
+                for (var i = 0; i < vm.images.length; i++) {
+                    if (vm.images[i].selected) {
+                        dfd.resolve(true);
+                        return;
+                    }
                 }
-            }
-            vm.canRemove = false;
+                dfd.resolve(false);
+            }, 100);
+            return dfd.promise;
         }
 
         function showEmbedCodeDialog(image) {
             $modal.open({
-                templateUrl: 'app/img/dialogs/embedFileDlg.html',
-                controller: ModalInstanceCtrl,
+                templateUrl: 'app/img/dialogs/embedFileDialog.html',
+                controller: EmbedCodeModalInstanceCtrl,
                 resolve: {
                     image: function () {
                         return image;
@@ -184,34 +199,97 @@
                 }
             });
         }
+
+        function showErrorMessageDialog(title, message, callback) {
+            var modalInstance = $modal.open({
+                templateUrl: 'app/img/dialogs/errorMessageDialog.html',
+                controller: ErrorMessageModalInstanceCtrl,
+                resolve: {
+                    title: function () {
+                        return title;
+                    },
+                    message: function () {
+                        return message;
+                    }
+                }
+            });
+
+            modalInstance.result.then(function () {
+                callback();
+            });
+        }
+
+        function showConfirmationDialog(title, message, callback) {
+            var modalInstance = $modal.open({
+                templateUrl: 'app/img/dialogs/confirmationDialog.html',
+                controller: ConfirmationModalInstanceCtrl,
+                resolve: {
+                    title: function () {
+                        return title;
+                    },
+                    message: function () {
+                        return message;
+                    }
+                }
+            });
+
+            modalInstance.result.then(function () {
+                callback();
+            });
+        }
     }
+    var EmbedCodeModalInstanceCtrl = ['$scope', '$modalInstance', 'image',
+        function ($scope, $modalInstance, image) {
+            var vm = $scope;
+            vm.image = image;
+            vm.badges = {
+                'im' : false,
+                'blog' : false,
+                'forum' : false,
+                'wiki' : false
+            };
+            vm.toggleBadge = toggleBadge;
 
-    var ModalInstanceCtrl = function ($scope, $modalInstance, image) {
-        var vm = $scope;
-        vm.image = image;
-        vm.badges = {
-            'im' : false,
-            'blog' : false,
-            'forum' : false,
-            'wiki' : false
-        };
-        vm.toggleBadge = toggleBadge;
+            function toggleBadge(badge){
+                hideBadges();
+                vm.badges[badge] = true;
+            }
 
-        function toggleBadge(badge){
-            hideBadges();
-            vm.badges[badge] = true;
-        }
+            function hideBadges(){
+                $scope.badges['im'] = false;
+                $scope.badges['blog'] = false;
+                $scope.badges['forum'] = false;
+                $scope.badges['wiki'] = false;
+            }
 
-        function hideBadges(){
-            $scope.badges['im'] = false;
-            $scope.badges['blog'] = false;
-            $scope.badges['forum'] = false;
-            $scope.badges['wiki'] = false;
-        }
+            vm.close = function () {
+                $modalInstance.dismiss('cancel');
+            };
+    }];
 
-        vm.close = function () {
-            $modalInstance.dismiss('cancel');
-        };
-    };
+    var ErrorMessageModalInstanceCtrl = ['$scope', '$modalInstance', 'title', 'message',
+        function ($scope, $modalInstance, title, message) {
+            var vm = $scope;
+            vm.title = title;
+            vm.message = message;
+
+            vm.close = function () {
+                $modalInstance.close();
+            };
+    }];
+
+    var ConfirmationModalInstanceCtrl = ['$scope', '$modalInstance', 'title', 'message',
+        function ($scope, $modalInstance, title, message) {
+            var vm = $scope;
+            vm.title = title;
+            vm.message = message;
+
+            vm.ok = function () {
+                $modalInstance.close();
+            };
+            vm.cancel = function () {
+                $modalInstance.dismiss('cancel');
+            };
+        }];
 
 })();

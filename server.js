@@ -103,7 +103,7 @@ router.post('/upload', function (req, res, next) {
         //TODO: validate image
         var imageCode = unique.createString();
         var imageSize = tempFile.size;
-        var imageExtension = tempFile.extension;
+        var imageExtension = tempFile.extension.toLowerCase();
         var imageName = imageCode + '.' + imageExtension;
         var fullSizeImagePath = path.join(storage.storagePath, imageName);
 
@@ -115,7 +115,13 @@ router.post('/upload', function (req, res, next) {
             thumb.create(fullSizeImagePath, function (responseData, hasError) {
                 if (hasError) {
                     console.log("Response has error, returning 400. Error: " + responseData);
-                    return res.send(400);
+                    try {
+                        var error = JSON.parse(responseData + '');
+                        return res.send(400, error.Message);
+                    } catch (e) {
+                        return res.send(400, "Service is not available.");
+                        //TODO: anyway create image but add it to db as 'have no thumb'
+                    }
                 }
 
                 var thumbImagePath = path.join(storage.thumbStoragePath, imageName);
@@ -133,24 +139,15 @@ router.post('/upload', function (req, res, next) {
     }
 });
 
+//handle ui-bootstrap templates
 router.get('/template/*', function (req, res) {
-    console.log();
-    console.log();
-    console.log('get template: ' + req.params[0]);
     var path = __dirname + '/public/vendor/ui-bootstrap/template/' + req.params[0];
-    console.log('path : "' + path + '"');
-    console.log();
-    console.log();
     res.sendfile(path);
-    //res.render(__dirname + '/public/vendor/ui-bootstrap/template/' + req.params[0]);
 });
 
 router.get('/partials/*', function (req, res) {
     res.render(__dirname + '/public/app/' + req.params[0]);
 });
-
-
-
 
 router.get('/image/thumb/*', function (req, res) {
     var imageName = req.params[0] || '';
