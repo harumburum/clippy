@@ -2,24 +2,23 @@
     'use strict';
 
     var controllerId = 'signUpCtrl';
-    angular.module('app').controller(controllerId, ['$scope', signUpCtrl]);
-    function signUpCtrl($scope) {
+    angular.module('app').controller(controllerId, ['$scope', 'common', 'mvAuth', signUpCtrl]);
+    function signUpCtrl($scope, common, mvAuth) {
         var vm = $scope;
+        var $location = common.$location;
+
         vm.signup = function(){
             var newUserData = {
                 username: $scope.email,
-                password: $scope.password,
-                firstName: $scope.firstName,
-                lastName: $scope.lastName
+                password: $scope.password
             };
 
             mvAuth.createUser(newUserData).then(function(){
-                mvNotifier.notify('User account created');
-                $location.path('/');
+                alert('User account created');
+              /*  $location.path('/');*/
             }, function(reason){
-                mvNotifier.error(reason);
+                alert(reason);
             });
         }
-
     }
 })();

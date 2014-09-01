@@ -1,0 +1,29 @@
+div(class="container mtb")
+    .col-md-6.col-md-offset-3
+        .well
+            h2.text-center Login
+            br
+            form.form-horizontal(name="signupform")
+                div(class="social-box")
+                    div(class="row mg-btm")
+                        div(class="col-md-12")
+                            a(href="", class="btn btn-primary btn-lg", style="width:100%")
+                                i(class="fa fa-facebook")
+                                |&nbsp;&nbsp;Login with Facebook
+                    div(class="row mg-btm", style="margin-top: 10px")
+                        div(class="col-md-12")
+                            a(href="", class="btn btn-info btn-lg", style="width:100%")
+                                i(class="fa fa-twitter")
+                                |&nbsp;&nbsp;Login with Twitter
+                fieldset(style="margin-top:20px")
+                    legend User Information
+                    .form-group
+                        label.col-md-2.control-label(for="email", style="margin-top: 5px;") Email:
+                        .col-md-10
+                            input.form-control.input-lg(name="email", type="email", placeholder="Email", ng-model="email", required)
+                    .form-group
+                        label.col-md-2.control-label(for="password", style="margin-top: 5px;") Password:
+                        .col-md-10
+                            input.form-control.input-lg(name="password", type="password", placeholder="Passsword", ng-model="password", required, ng-minlength="6")
+                    .form-group.text-center
+                            button.btn.btn-success.btn-lg(style="width: 150px", ng-click="signIn()", ng-disabled="signupform.$invalid") Login

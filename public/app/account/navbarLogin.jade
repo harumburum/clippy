@@ -1,0 +1,11 @@
+div(ng-controller="navbarLoginCtrl as vm")
+li
+    a(href="#/account/signin" class="btn btn-theme btn-nav") Sign In
+li
+    a(href="#/account/signup" class="btn btn-theme btn-nav") Sign Up
+li.dropdown(style="margin-top: 5px")
+    a.dropdown-toggle(data-toggle="dropdown") {{ vm.identity.currentUser.username }}
+        b.caret
+    ul.dropdown-menu
+        li
+            a(href="/#", ng-click="signout()") Sign Out

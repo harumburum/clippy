@@ -1,5 +1,6 @@
 var mongoose = require('mongoose'),
-    imageModel = require('../models/Image');
+    imageModel = require('../models/Image'),
+    userModel = require('../models/User');
 
 module.exports = function(){
     mongoose.connect('mongodb://localhost/img2net');
@@ -10,4 +11,5 @@ module.exports = function(){
     });
 
     imageModel.createDefaultImages();
-}
+    userModel.createDefaultUsers();
+};

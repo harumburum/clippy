@@ -3,13 +3,14 @@
 
     var app = angular.module('app');
 
-    app.factory('common', ['$q', '$timeout', '$http', common]);
-    function common($q, $timeout, $http) {
+    app.factory('common', ['$q', '$timeout', '$http', '$location', common]);
+    function common($q, $timeout, $http, $location) {
 
         var service = {
             $q: $q,
             $timeout: $timeout,
             $http: $http,
+            $location: $location,
             // generic
             activateController: activateController
         };

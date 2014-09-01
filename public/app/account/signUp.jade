@@ -18,16 +18,12 @@ div(class="container mtb")
                 fieldset(style="margin-top:20px")
                     legend New User Information
                     .form-group
-                        label.col-md-2.control-label(for="email", style="margin-top: 5px;") Username:
-                        .col-md-10
-                            input.form-control.input-lg(name="username", type="text", placeholder="Username", ng-model="username", required)
-                    .form-group
                         label.col-md-2.control-label(for="email", style="margin-top: 5px;") Email:
                         .col-md-10
                             input.form-control.input-lg(name="email", type="email", placeholder="Email", ng-model="email", required)
                     .form-group
                         label.col-md-2.control-label(for="password", style="margin-top: 5px;") Password:
                         .col-md-10
-                            input.form-control.input-lg(name="password", type="password", placeholder="Passsword", ng-model="password", required)
+                            input.form-control.input-lg(name="password", type="password", placeholder="Passsword", ng-model="password", required, ng-minlength="6")
                     .form-group.text-center
                             button.btn.btn-success.btn-lg(style="width: 150px", ng-click="signup()", ng-disabled="signupform.$invalid") Sign Up

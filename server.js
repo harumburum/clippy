@@ -6,15 +6,34 @@ var http = require('http');
 var file = require('./server/utilities/file');
 var thumb = require('./server/utilities/thumb');
 
-
-
 //Setup db
-require('./server/config/mongoose')();-+
+require('./server/config/mongoose')();
+
+
+//Setup passport
+require('./server/config/passport')();
+var passport = passport = require('passport');
+var session = require('express-session')
+app.use(session({ secret: 'freedom', saveUninitialized: true, resave: true}));
+app.use(passport.initialize());
+app.use(passport.session());
+
+//Setup logger
+var morgan = require('morgan');
+app.use(morgan());
+
+//Parse documents that send to the server
+var bodyParser = require('body-parser');
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.json())
+
+
+
+
 
 
 //TODO: remove multiparty module
 //TODO: remove imagemagik module
-
 
 app.use(multer());
 
@@ -26,14 +45,7 @@ app.use(express.static(__dirname + '/public'));
 app.set('views', __dirname + '/server/views');
 app.set('view engine', 'jade');
 
-//Parse documents that send to the server
-var bodyParser = require('body-parser');
-app.use(bodyParser.urlencoded({extended: true}));
 
-
-//Setup logger
-var morgan = require('morgan');
-app.use(morgan());
 
 //Setup stylus middleware
 var stylus = require('stylus');
@@ -50,14 +62,20 @@ app.use(stylus.middleware(
 
 var ImageModel = require('./server/models/Image');
 
-
 //Setup application routes
 var router = express.Router();
 
 var images = require('./server/controllers/images');
-
 router.get('/api/images', images.getImages);
 router.delete('/api/images/:code', images.deleteImage);
+
+var usersController = require('./server/controllers/users');
+router.post('/api/users', usersController.createUser);
+
+auth = require('./server/config/auth');
+app.post('/login', auth.authenticate);
+
+
 
 var path = require('path');
 var unique = require('./server/utilities/unique');
@@ -192,7 +210,7 @@ router.get('/d/*', function (req, res) {
 });
 
 router.get('*', function (req, res) {
-    res.render('index', { });
+    res.render('index', { bootstrappedUser: req.user});
 });
 app.use('/', router);
 
