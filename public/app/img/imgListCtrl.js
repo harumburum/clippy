@@ -238,6 +238,7 @@
             });
         }
     }
+
     var EmbedCodeModalInstanceCtrl = ['$scope', '$modalInstance', 'image',
         function ($scope, $modalInstance, image) {
             var vm = $scope;

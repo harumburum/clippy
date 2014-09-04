@@ -10,6 +10,15 @@ var thumb = require('./server/utilities/thumb');
 require('./server/config/mongoose')();
 
 
+//Parse documents that send to the server
+var bodyParser = require('body-parser');
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.json())
+
+var cookieParser = require('cookie-parser');
+app.use(cookieParser());
+
+
 //Setup passport
 require('./server/config/passport')();
 var passport = passport = require('passport');
@@ -21,15 +30,6 @@ app.use(passport.session());
 //Setup logger
 var morgan = require('morgan');
 app.use(morgan());
-
-//Parse documents that send to the server
-var bodyParser = require('body-parser');
-app.use(bodyParser.urlencoded({extended: true}));
-app.use(bodyParser.json())
-
-
-
-
 
 
 //TODO: remove multiparty module
@@ -54,8 +54,6 @@ app.use(stylus.middleware(
         src: __dirname + '/public',
         compile: function (str, path) {
             return stylus(str).set('filename', path);
-
-
        }
     }
 ));
@@ -75,6 +73,10 @@ router.post('/api/users', usersController.createUser);
 auth = require('./server/config/auth');
 app.post('/login', auth.authenticate);
 
+app.post('/logout', function (req, res) {
+    req.logout();
+    res.end();
+});
 
 
 var path = require('path');
@@ -112,7 +114,6 @@ router.post('/api/images', function (req, res) {
         }
     });
 });
-
 
 router.post('/upload', function (req, res, next) {
     if (req.files.file) {
@@ -210,6 +211,11 @@ router.get('/d/*', function (req, res) {
 });
 
 router.get('*', function (req, res) {
+    console.log();
+    console.log();
+    console.log(req.user);
+    console.log();
+    console.log();
     res.render('index', { bootstrappedUser: req.user});
 });
 app.use('/', router);

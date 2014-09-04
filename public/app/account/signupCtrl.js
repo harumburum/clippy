@@ -14,8 +14,7 @@
             };
 
             mvAuth.createUser(newUserData).then(function(){
-                alert('User account created');
-              /*  $location.path('/');*/
+                $location.path('/');
             }, function(reason){
                 alert(reason);
             });

@@ -1,0 +1,17 @@
+ul(class="nav navbar-nav", ng-controller="navigationCtrl as vm")
+    li(ng-hide="vm.isAuthenticated")
+        a(href="#/account/signin" class="btn btn-theme btn-nav") Sign In
+    li(ng-hide="vm.isAuthenticated")
+        a(href="#/account/signup" class="btn btn-theme btn-nav") Sign Up
+    li.dropdown(style="margin-top: 5px", ng-show="vm.isAuthenticated")
+        a.dropdown-toggle(data-toggle="dropdown")
+            span(class="glyphicon glyphicon-user")
+            | &nbsp; {{ vm.username }}
+            b.caret
+        ul.dropdown-menu
+            li
+                a(href="/#", ng-click="vm.signOut()")
+                    span(class="glyphicon glyphicon-off")
+                    | &nbsp; Sign Out
+    li
+        a(href="#/img" class="btn btn-theme btn-nav") My Images

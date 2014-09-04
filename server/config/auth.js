@@ -10,7 +10,7 @@ exports.authenticate =  function (req, res, next) {
                 return next(err);
             }
             else{
-                res.send({success: true, user: user});
+                res.send({success: true, user: { username: user['username'] }});
             }
         });
     });
