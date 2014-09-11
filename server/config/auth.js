@@ -10,13 +10,12 @@ exports.authenticate =  function (req, res, next) {
                 return next(err);
             }
             else{
-                res.send({success: true, user: { username: user['username'] }});
+                res.send({success: true, user: user});
             }
         });
     });
     auth(req, res, next);
 };
-
 
 exports.requiresApiLogin = function(req, res, next){
     if (!req.isAuthenticated) {

@@ -13,7 +13,7 @@ require('./server/config/mongoose')();
 //Parse documents that send to the server
 var bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({extended: true}));
-app.use(bodyParser.json())
+app.use(bodyParser.json());
 
 var cookieParser = require('cookie-parser');
 app.use(cookieParser());
@@ -22,7 +22,7 @@ app.use(cookieParser());
 //Setup passport
 require('./server/config/passport')();
 var passport = passport = require('passport');
-var session = require('express-session')
+var session = require('express-session');
 app.use(session({ secret: 'freedom', saveUninitialized: true, resave: true}));
 app.use(passport.initialize());
 app.use(passport.session());
@@ -69,6 +69,7 @@ router.delete('/api/images/:code', images.deleteImage);
 
 var usersController = require('./server/controllers/users');
 router.post('/api/users', usersController.createUser);
+router.put('/api/users', usersController.updateUser);
 
 auth = require('./server/config/auth');
 app.post('/login', auth.authenticate);
@@ -77,7 +78,6 @@ app.post('/logout', function (req, res) {
     req.logout();
     res.end();
 });
-
 
 var path = require('path');
 var unique = require('./server/utilities/unique');
@@ -211,11 +211,6 @@ router.get('/d/*', function (req, res) {
 });
 
 router.get('*', function (req, res) {
-    console.log();
-    console.log();
-    console.log(req.user);
-    console.log();
-    console.log();
     res.render('index', { bootstrappedUser: req.user});
 });
 app.use('/', router);

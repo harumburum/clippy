@@ -29,3 +29,24 @@ exports.createUser = function(req, res, next){
         })
     });
 };
+
+exports.updateUser = function(req, res, next){
+    var userUpdates = req.body;
+    if(req.user._id != userUpdates._id){
+        res.status(403);
+        return res.end();
+    }
+    if(userUpdates.username && userUpdates.username.length > 0 && userUpdates.username !== req.user.username) {
+        req.user.username = userUpdates.username.toLowerCase();
+    }
+
+    if(userUpdates.password && userUpdates.password.length > 0){
+        req.user.salt = encryption.createSalt();
+        req.user.hash_pwd = encryption.hashPwd(req.user.salt, userUpdates.password);
+    }
+
+    req.user.save(function(err){
+        if(err){ res.status(400); res.send({reason: err.toString()})}
+        res.send(req.user);
+    })
+};

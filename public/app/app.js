@@ -6,6 +6,7 @@ angular.module('app').config(function($routeProvider, $locationProvider){
         .when('/', {templateUrl: '/partials/main/main', controller: 'mainCtrl'})
         .when('/img', {templateUrl: '/partials/img/imgList', controller: 'imgListCtrl'})
         .when('/img/:id', {templateUrl: '/partials/img/img', controller: 'imgCtrl'})
-        .when('/account/signin', {templateUrl: '/partials/account/signin', controller: 'signInCtrl'})
-        .when('/account/signup', {templateUrl: '/partials/account/signUp', controller: 'signUpCtrl'});
+        .when('/login', {templateUrl: '/partials/account/signIn', controller: 'signInCtrl'})
+        .when('/signup', {templateUrl: '/partials/account/signUp', controller: 'signUpCtrl'})
+        .when('/profile', {templateUrl: '/partials/account/profile', controller: 'profileCtrl'});
 });

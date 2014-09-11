@@ -21,6 +21,18 @@
 
                 return dfr.promise;
             },
+            updateUser: function(userData){
+                var dfr = $q.defer();
+                var clone = angular.copy(mvIdentity.currentUser);
+                angular.extend(clone, userData);
+                clone.$update().then(function(){
+                    mvIdentity.currentUser = clone;
+                    dfr.resolve();
+                }, function(response){
+                    dfr.reject(response.data.reason);
+                });
+                return dfr.promise;
+            },
             authenticateUser: function(username, password) {
                 var dfd = $q.defer();
                 $http.post('/login', {username:username, password:password}).then(function(response) {
