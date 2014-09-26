@@ -1,6 +1,25 @@
 var mongoose = require('mongoose'),
     User = mongoose.model('User'),
-    encryption = require('../utilities/encryption');
+    encryption = require('../utilities/encryption'),
+    validation = require('../utilities/validation');
+
+exports.isExists = function (req, res) {
+    console.log();
+    var username = req.params.username;
+    console.log("isExists: '" + username + "'");
+    if(!username || username.length === 0){
+        console.log("isExists: empty");
+        return res.send(false);
+    }
+    if(!validation.isEmail(username)){
+        console.log("isExists: not an email");
+        return res.send(false);
+    }
+    User.count({username: username}).exec(function (err, count) {
+        var exists = count > 0;
+        return res.send(exists);
+    });
+};
 
 exports.getUsers = function (req, res) {
     User.find({}).exec(function (err, collection) {

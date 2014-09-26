@@ -70,6 +70,7 @@ router.delete('/api/images/:code', images.deleteImage);
 var usersController = require('./server/controllers/users');
 router.post('/api/users', usersController.createUser);
 router.put('/api/users', usersController.updateUser);
+router.get('/api/users/:username/exists', usersController.isExists);
 
 auth = require('./server/config/auth');
 app.post('/login', auth.authenticate);

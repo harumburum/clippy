@@ -54,7 +54,16 @@
                     dfd.resolve();
                 });
                 return dfd.promise;
+            },
+            checkIsEmailExists: function(email){
+                var dfd = $q.defer();
+                $http.get('/api/users/' + email + '/exists').then(function() {
+                    mvIdentity.currentUser = undefined;
+                    dfd.resolve();
+                });
+                return dfd.promise;
             }
+
         }
     }
 })();

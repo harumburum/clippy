@@ -17,13 +17,15 @@ div(class="container mtb")
                                 |&nbsp;&nbsp;Login with Twitter
                 fieldset(style="margin-top:20px")
                     legend New User Information
-                    .form-group
+                    .form-group.has-feedback(ng-class="{ 'has-error' : signupform.email.$dirty && signupform.email.$invalid, 'has-success' : signupform.email.$dirty && !signupform.email.$invalid}")
                         label.col-md-2.control-label(for="email", style="margin-top: 5px;") Email:
                         .col-md-10
                             input.form-control.input-lg(name="email", type="email", placeholder="Email", ng-model="email", required)
-                    .form-group
+                            span(ng-hide="!signupform.email.$dirty" ng-class="signupform.email.$invalid ? 'glyphicon-warning-sign' : 'glyphicon-ok'" class="glyphicon form-control-feedback", style="top:5px; right:20px;")
+                    .form-group.has-feedback(ng-class="{ 'has-error' : signupform.password.$dirty && signupform.password.$invalid, 'has-success' : signupform.password.$dirty && !signupform.password.$invalid}")
                         label.col-md-2.control-label(for="password", style="margin-top: 5px;") Password:
                         .col-md-10
-                            input.form-control.input-lg(name="password", type="password", placeholder="Passsword", ng-model="password", required, ng-minlength="6")
+                            input.form-control.input-lg(name="password", type="password", placeholder="Password", ng-model="password", required, ng-minlength="6")
+                            span(ng-hide="!signupform.password.$dirty" ng-class="signupform.password.$invalid ? 'glyphicon-warning-sign' : 'glyphicon-ok'" class="glyphicon form-control-feedback", style="top:5px; right:20px;")
                     .form-group.text-center
                             button.btn.btn-success.btn-lg(style="width: 150px", ng-click="signup()", ng-disabled="signupform.$invalid") Sign Up
