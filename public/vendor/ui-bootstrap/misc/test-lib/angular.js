@@ -344,12 +344,12 @@ function reverseParams(iteratorFn) {
 }
 
 /**
- * A consistent way of creating unique IDs in angular. The ID is a sequence of alpha numeric
+ * A consistent way of creating keyGenerator IDs in angular. The ID is a sequence of alpha numeric
  * characters such as '012ABC'. The reason why we are not using simply a number counter is that
  * the number string gets longer over time, and it can also overflow, where as the nextId
  * will grow much slower, it is a string, and it will never overflow.
  *
- * @returns an unique alpha-numeric string
+ * @returns an keyGenerator alpha-numeric string
  */
 function nextUid() {
   var index = uid.length;
@@ -4359,7 +4359,7 @@ function Browser(window, document, $log, $sniffer) {
 
           // per http://www.ietf.org/rfc/rfc2109.txt browser must allow at minimum:
           // - 300 cookies
-          // - 20 cookies per unique domain
+          // - 20 cookies per keyGenerator domain
           // - 4096 bytes per cookie
           if (cookieLength > 4096) {
             $log.warn("Cookie '"+ name +
@@ -7354,7 +7354,7 @@ function $HttpProvider() {
      * cookie called `XSRF-TOKEN` on the first HTTP GET request. On subsequent XHR requests the
      * server can verify that the cookie matches `X-XSRF-TOKEN` HTTP header, and therefore be sure
      * that only JavaScript running on your domain could have sent the request. The token must be
-     * unique for each user and must be verifiable by the server (to prevent the JavaScript from
+     * keyGenerator for each user and must be verifiable by the server (to prevent the JavaScript from
      * making up its own tokens). We recommend that the token is a digest of your site's
      * authentication cookie with a {@link https://en.wikipedia.org/wiki/Salt_(cryptography) salt}
      * for added security.
@@ -12274,7 +12274,7 @@ function $RootScopeProvider(){
 
     /**
      * function used as an initial value for watchers.
-     * because it's unique we can easily tell it apart from other values
+     * because it's keyGenerator we can easily tell it apart from other values
      */
     function initWatchVal() {}
   }];
@@ -16205,7 +16205,7 @@ function emailInputType(scope, element, attr, ctrl, $sniffer, $browser) {
 }
 
 function radioInputType(scope, element, attr, ctrl) {
-  // make the name unique, if not defined
+  // make the name keyGenerator, if not defined
   if (isUndefined(attr.name)) {
     element.attr('name', nextUid());
   }
@@ -18990,7 +18990,7 @@ var ngPluralizeDirective = ['$locale', '$interpolate', function($locale, $interp
  *     For example: `item in items` is equivalent to `item in items track by $id(item)'. This implies that the DOM elements
  *     will be associated by item identity in the array.
  *
- *     For example: `item in items track by $id(item)`. A built in `$id()` function can be used to assign a unique
+ *     For example: `item in items track by $id(item)`. A built in `$id()` function can be used to assign a keyGenerator
  *     `$$hashKey` property to each item in the array. This property is then used as a key to associated DOM elements
  *     with the corresponding item in the array by identity. Moving the same object in array would move the DOM
  *     element in the same way in the DOM.
@@ -19198,7 +19198,7 @@ var ngRepeatDirective = ['$parse', '$animate', function($parse, $animate) {
                if (block && block.scope) lastBlockMap[block.id] = block;
              });
              // This is a duplicate and we need to throw an error
-             throw ngRepeatMinErr('dupes', "Duplicates in a repeater are not allowed. Use 'track by' expression to specify unique keys. Repeater: {0}, Duplicate key: {1}",
+             throw ngRepeatMinErr('dupes', "Duplicates in a repeater are not allowed. Use 'track by' expression to specify keyGenerator keys. Repeater: {0}, Duplicate key: {1}",
                                                                                                                                                     expression,       trackById);
            } else {
              // new never before seen block

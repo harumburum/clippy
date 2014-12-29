@@ -8,7 +8,7 @@ define([
 ], function( jQuery, indexOf, rneedsContext ) {
 
 var rparentsprev = /^(?:parents|prev(?:Until|All))/,
-	// methods guaranteed to produce a unique set when starting from a unique set
+	// methods guaranteed to produce a keyGenerator set when starting from a keyGenerator set
 	guaranteedUnique = {
 		children: true,
 		contents: true,

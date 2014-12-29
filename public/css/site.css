@@ -10,3 +10,7 @@
     opacity: 0.8;
     background-color: #3a87ad;
 }
+
+a.navbar-brand:hover{
+    color: #00b3fe !important;
+}

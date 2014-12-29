@@ -1,4 +1,4 @@
 module.exports = {
-    storagePath : "c:\\ImageStorage\\",
-    thumbStoragePath : "c:\\ImageStorage\\thumbs\\"
+    storagePath : "d:\\vlitvinchik\\data\\imagestorage",
+    thumbStoragePath : "d:\\vlitvinchik\\data\\imagestorage\\thumbs\\"
 };

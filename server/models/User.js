@@ -1,17 +1,18 @@
 var mongoose = require('mongoose'),
-    encryption = require('../utilities/encryption');
+    encryption = require('../utilities/encryption'),
+    enums = require('../models/enums');
 
 var userSchema = mongoose.Schema({
-    //user_id: { type: String },
     username: {type: String, required: '{PATH} is required!', unique: true},
-    salt: {type: String, required: '{PATH} is required!'},
-    hash_pwd: {type: String, required: '{PATH} is required!'}
+    salt: {type: String},
+    hash_pwd: {type: String},
+    user_type: {type:  String, default: enums.userType.Local},
+    facebook_id: {type: String},
+    twitter_id: {type: String}
 });
 
 userSchema.methods = {
     authenticate: function (passwordToMath) {
-        console.log(this.hash_pwd);
-        console.log(encryption.hashPwd(this.salt, passwordToMath));
         return encryption.hashPwd(this.salt, passwordToMath) === this.hash_pwd;
     }
 };
@@ -21,7 +22,7 @@ var User = mongoose.model('User', userSchema);
 exports.createDefaultUsers = function (){
     User.find({}).exec(function(err, collection){
         if(collection.length === 0){
-            //Image.create({code: '', date: new Date('10/5/2013'), user_id});
+            //User.create({username: ''});
         }
     })
 };

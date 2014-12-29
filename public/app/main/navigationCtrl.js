@@ -25,6 +25,8 @@
                 vm.isAuthenticated = mvIdentity.isAuthenticated();
                 if(vm.isAuthenticated) {
                     vm.username = mvIdentity.currentUser.username;
+                    debugger;
+                    vm.isLocalUser = mvIdentity.currentUser.user_type === "local";
                 }
                 dfd.resolve();
             }, 100);

@@ -1,5 +1,6 @@
 var mongoose = require('mongoose'),
     User = mongoose.model('User'),
+    Image = mongoose.model('Image'),
     encryption = require('../utilities/encryption'),
     validation = require('../utilities/validation');
 
@@ -33,6 +34,7 @@ exports.createUser = function(req, res, next){
     userData.username = userData.username.toLowerCase();
     userData.salt = encryption.createSalt();
     userData.hash_pwd = encryption.hashPwd(userData.salt, userData.password);
+    userData.session_id = req.cookies['session_id'];
 
     User.create(userData, function(err, user){
         if(err){
@@ -44,7 +46,13 @@ exports.createUser = function(req, res, next){
         }
         req.logIn(user, function(err){
             if(err) { return next(err);}
-            res.send(user);
+
+            Image.assignImagesToUser(req.session.id, user._id.toString(), function(err){
+                if(err){
+                    return next(err);
+                }
+                res.send(user);
+            });
         })
     });
 };

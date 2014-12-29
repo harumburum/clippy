@@ -8,5 +8,6 @@ angular.module('app').config(function($routeProvider, $locationProvider){
         .when('/img/:id', {templateUrl: '/partials/img/img', controller: 'imgCtrl'})
         .when('/login', {templateUrl: '/partials/account/signIn', controller: 'signInCtrl'})
         .when('/signup', {templateUrl: '/partials/account/signUp', controller: 'signUpCtrl'})
-        .when('/profile', {templateUrl: '/partials/account/profile', controller: 'profileCtrl'});
+        .when('/profile', {templateUrl: '/partials/account/profile', controller: 'profileCtrl'})
+        .otherwise({redirectTo: '/'});
 });

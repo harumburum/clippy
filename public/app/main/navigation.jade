@@ -9,7 +9,7 @@ ul(class="nav navbar-nav", ng-controller="navigationCtrl as vm")
             | &nbsp; {{ vm.username }}
             b.caret
         ul.dropdown-menu
-            li
+            li(ng-show="vm.isLocalUser")
                 a(href="/#/profile")
                     span(class="glyphicon glyphicon-pencil")
                     | &nbsp; Profile

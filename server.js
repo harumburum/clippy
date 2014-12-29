@@ -18,12 +18,23 @@ app.use(bodyParser.json());
 var cookieParser = require('cookie-parser');
 app.use(cookieParser());
 
-
 //Setup passport
 require('./server/config/passport')();
-var passport = passport = require('passport');
+var passport = require('passport');
 var session = require('express-session');
-app.use(session({ secret: 'freedom', saveUninitialized: true, resave: true}));
+app.use(session({
+    name: 'session_id',
+    secret: 'monkey code',
+    saveUninitialized: true,
+    resave: true,
+    genid: function(req) {
+        if(req.session && req.session.newSessionId){
+            debugger;
+            return req.session.newSessionId;
+        }
+        return keyGenerator.createGuid();
+    }
+}));
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -44,7 +55,6 @@ app.use(express.static(__dirname + '/public'));
 //Setup view engine
 app.set('views', __dirname + '/server/views');
 app.set('view engine', 'jade');
-
 
 
 //Setup stylus middleware
@@ -73,15 +83,29 @@ router.put('/api/users', usersController.updateUser);
 router.get('/api/users/:username/exists', usersController.isExists);
 
 auth = require('./server/config/auth');
-app.post('/login', auth.authenticate);
+app.post('/login', function(req, res, next){
+    auth.authenticate('local', req, res, next);
+});
 
 app.post('/logout', function (req, res) {
     req.logout();
     res.end();
 });
 
+app.get('/auth/facebook', passport.authenticate('facebook'));
+app.get('/auth/facebook/callback', function(req, res, next){
+        auth.authenticate('facebook', req, res, next);
+      /*  passport.authenticate('facebook', { successRedirect: '/', failureRedirect: '/login' })(req, res, next);*/
+});
+
+app.get('/auth/twitter', passport.authenticate('twitter'));
+app.get('/auth/twitter/callback', function(req,res,next){
+        passport.authenticate('twitter', { successRedirect: '/',
+            failureRedirect: '/login' })(req,res,next);
+});
+
 var path = require('path');
-var unique = require('./server/utilities/unique');
+var keyGenerator = require('./server/utilities/keyGenerator');
 var storage = require('./server/config/storage');
 router.post('/api/images', function (req, res) {
     var buffer = '';
@@ -89,7 +113,7 @@ router.post('/api/images', function (req, res) {
         buffer += chunk;
     }).on('end', function () {
         buffer = buffer.replace(/^data:image\/png;base64,/, "");
-        var imageCode = unique.createString();
+        var imageCode = keyGenerator.generate();
         var fullSizeImagePath = path.join(storage.storagePath, imageCode + '.png');
 
         file.createBase64File(fullSizeImagePath, buffer, fileCreated);
@@ -103,7 +127,15 @@ router.post('/api/images', function (req, res) {
 
                 var thumbImagePath = path.join(storage.thumbStoragePath, imageName);
                 file.createFile(thumbImagePath, responseData, function () {
-                    ImageModel.createImage(imageCode, imageExtension, imageSize, function (err, image) {
+
+                    var sessionId = req.session.id;
+                    var image = {
+                        code: imageCode,
+                        extension: imageExtension,
+                        size: imageSize,
+                        session_id: sessionId
+                    };
+                    ImageModel.createImage(image, function (err, image) {
                         if (err) {
                             console.log("Error create image: " + err);
                             return false;
@@ -116,12 +148,12 @@ router.post('/api/images', function (req, res) {
     });
 });
 
-router.post('/upload', function (req, res, next) {
+router.post('/upload', function (req, res) {
     if (req.files.file) {
         var tempFile = req.files.file;
 
         //TODO: validate image
-        var imageCode = unique.createString();
+        var imageCode = keyGenerator.generate();
         var imageSize = tempFile.size;
         var imageExtension = tempFile.extension.toLowerCase();
         var imageName = imageCode + '.' + imageExtension;
@@ -146,7 +178,19 @@ router.post('/upload', function (req, res, next) {
 
                 var thumbImagePath = path.join(storage.thumbStoragePath, imageName);
                 file.createFile(thumbImagePath, responseData, function () {
-                    ImageModel.createImage(imageCode, imageExtension, imageSize, function (err, image) {
+                    var image = {
+                        code: imageCode,
+                        extension: imageExtension,
+                        size: imageSize
+                    };
+
+                    if(req.user){
+                        image.user_id = req.user._id.toString();
+                    } else {
+                        image.session_id = req.session.id
+                    }
+
+                    ImageModel.createImage(image, function (err, image) {
                         if (err) {
                             console.log("Error create image: " + err);
                             return false;
@@ -189,7 +233,7 @@ router.get('/image/*', function (req, res) {
      console.log('code: ' + imgCode);
      ImageModel.getImageByCode(imgCode, function(err, img){
      if(img.user_id == ""){
-     var guid = user_id || unique.createGuid();
+     var guid = user_id || keyGenerator.createGuid();
      img.user_id = guid;
      img.save();
      res.cookie('user_id', guid);
@@ -215,6 +259,7 @@ router.get('*', function (req, res) {
     res.render('index', { bootstrappedUser: req.user});
 });
 app.use('/', router);
+
 
 //Run node
 var port = 3030;

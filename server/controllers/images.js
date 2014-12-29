@@ -2,7 +2,13 @@ var mongoose = require('mongoose'),
     Image = mongoose.model('Image');
 
 exports.getImages = function(req, res){
-    Image.find({}).sort({data:-1}).exec(function(err, collection){
+    var query = {};
+    if(req.user){
+        query.user_id = req.user._id.toString();
+    } else {
+        query.session_id = req.session.id;
+    }
+    Image.find(query).sort({data:-1}).exec(function(err, collection){
         if(err){
             //TODO: log error
             res.send(400);

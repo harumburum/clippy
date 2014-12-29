@@ -3,9 +3,10 @@ var mongoose = require('mongoose');
 var imageSchema = mongoose.Schema({
     code: {type: String, required: '{PATH} is required!'},
     extension: {type: String, required: '{PATH} is required!'},
-    date: {type: Date, required: '{PATH} is required!'},
+    date: {type: Date, required: '{PATH} is required!', default: new Date()},
     size: {type: Number, required: '{PATH} is required!'},
-    user_id: { type: String }
+    user_id: { type: String },
+    session_id: { type: String }
 });
 
 var Image = mongoose.model('Image', imageSchema);
@@ -20,14 +21,12 @@ exports.getImageByCode = function (code, callback) {
     Image.findOne({ code: code }).exec(callback);
 };
 
-exports.createImage = function(code, extension, size, callback){
-    var imageData = {};
-    imageData.code = code;
-    imageData.date = new Date();
-    imageData.user_id = '';
-    imageData.size = size;
-    imageData.extension = extension;
-    Image.create(imageData, callback);
+exports.createImage = function(image, callback){
+    Image.create(image, callback);
+};
+
+exports.assignImagesToUser = function(sessionId, userId, callback){
+    Image.update({session_id: sessionId}, {user_id: userId, session_id: ''}, {multi: true}, callback)
 };
 
 exports.createDefaultImages = function (){
@@ -37,4 +36,5 @@ exports.createDefaultImages = function (){
         }
     })
 };
+
 
